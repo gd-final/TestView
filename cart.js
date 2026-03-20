@@ -18,6 +18,33 @@ const HEADER_POPULAR_TERMS = [
   { keyword: '명함 케이스', trend: 'down', count: 1 },
 ];
 
+const HEADER_NOTIFY_ITEMS = [
+  {
+    type: '주문',
+    time: '방금 전',
+    title: '주문번호 TH-240320-0184가 접수되었습니다.',
+    desc: '결제 확인 후 출고 일정이 확정되면 다시 안내드립니다.',
+  },
+  {
+    type: '배송',
+    time: '12분 전',
+    title: '택배 박스 대(400×300×200) 상품이 출고 준비 중입니다.',
+    desc: '송장 등록이 완료되면 배송조회에서 바로 확인할 수 있습니다.',
+  },
+  {
+    type: '문의',
+    time: '1시간 전',
+    title: '1:1 문의에 대한 답변이 등록되었습니다.',
+    desc: '판촉물 인쇄 옵션 관련 문의에 담당자가 답변을 남겼습니다.',
+  },
+  {
+    type: '회원',
+    time: '오늘',
+    title: '법인 회원 전용 3월 공급가 업데이트가 적용되었습니다.',
+    desc: '사무용품과 포장/배송 카테고리 일부 상품의 회원가가 조정되었습니다.',
+  },
+];
+
 const VAT_RATE = 0.1;
 
 /* ── 상태 ── */
@@ -37,6 +64,10 @@ const state = {
     timer: null,
     DELAY: 5000,
   },
+  notify: {
+    open: false,
+    items: HEADER_NOTIFY_ITEMS,
+  },
   showTopButton: false,
 };
 
@@ -50,6 +81,7 @@ function render() {
   state.items.forEach((_, id) => renderItemExpanded(id));
   renderSearchLayer();
   renderHotWidget();
+  renderNotifyModal();
   renderQuickMenu();
 }
 
@@ -68,12 +100,10 @@ function renderSummary() {
   const selectedCountEl = document.getElementById('selectedCountDisplay');
   const subtotalEl      = document.getElementById('subtotalDisplay');
   const totalEl         = document.getElementById('totalDisplay');
-  const orderBtn        = document.getElementById('orderBtn');
 
   if (selectedCountEl) selectedCountEl.textContent = `${selectedCount}개`;
   if (subtotalEl)      subtotalEl.textContent       = fmt(subtotal);
   if (totalEl)         totalEl.textContent           = fmt(total);
-  if (orderBtn)        orderBtn.disabled             = selectedCount === 0;
 }
 
 /** 선택 삭제 버튼 활성 상태 */
@@ -217,6 +247,30 @@ function renderHotWidget() {
   `).join('');
 }
 
+function renderNotifyModal() {
+  const modal = document.getElementById('ghNotifyModal');
+  const list = document.getElementById('ghNotifyList');
+  const trigger = document.getElementById('ghNotifyBtn');
+  if (!modal || !list || !trigger) return;
+
+  modal.classList.toggle('is-open', state.notify.open);
+  modal.setAttribute('aria-hidden', String(!state.notify.open));
+  trigger.setAttribute('aria-expanded', String(state.notify.open));
+
+  list.innerHTML = state.notify.items.map((item) => `
+    <article class="gh-notify-item">
+      <div class="gh-notify-item__body">
+        <div class="gh-notify-item__top">
+          <span class="gh-notify-item__badge">${escapeHtml(item.type)}</span>
+          <span class="gh-notify-item__time">${escapeHtml(item.time)}</span>
+        </div>
+        <p class="gh-notify-item__title">${escapeHtml(item.title)}</p>
+        <p class="gh-notify-item__desc">${escapeHtml(item.desc)}</p>
+      </div>
+    </article>
+  `).join('');
+}
+
 /** 장바구니 헤더 카운트 업데이트 */
 function renderTotalCount() {
   const el = document.getElementById('totalCountDisplay');
@@ -244,6 +298,7 @@ function bindEvents() {
   bindCatAllToggle();
   bindHeaderSearch();
   bindHotWidget();
+  bindNotifyModal();
   bindQuickMenu();
 }
 
@@ -421,12 +476,6 @@ function bindDeleteAll() {
 
 /** CTA 버튼 */
 function bindCta() {
-  document.getElementById('orderBtn')?.addEventListener('click', () => {
-    if (state.checkedIds.size === 0) return;
-    const ids = Array.from(state.checkedIds).join(',');
-    window.location.href = `/order/new?cartIds=${ids}`;
-  });
-
   document.getElementById('quoteBtn')?.addEventListener('click', () => {
     const ids = Array.from(state.checkedIds).join(',') || Array.from(state.items.keys()).join(',');
     window.location.href = `/quote/new?cartIds=${ids}`;
@@ -583,6 +632,44 @@ function bindHotWidget() {
     if (event.key === 'Escape' && state.hot.open) {
       state.hot.open = false;
       renderHotWidget();
+    }
+  });
+}
+
+function bindNotifyModal() {
+  const notifyBtn = document.getElementById('ghNotifyBtn');
+  const notifyModal = document.getElementById('ghNotifyModal');
+  if (!notifyBtn || !notifyModal) return;
+
+  notifyBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    state.notify.open = !state.notify.open;
+    renderNotifyModal();
+  });
+
+  notifyModal.addEventListener('click', (event) => {
+    if (event.target.closest('.gh-notify-modal__dialog')) {
+      event.stopPropagation();
+    }
+
+    if (event.target.closest('#ghNotifyCloseBtn') || event.target.classList.contains('gh-notify-modal__backdrop')) {
+      state.notify.open = false;
+      renderNotifyModal();
+    }
+  });
+
+  document.addEventListener('click', () => {
+    if (state.notify.open) {
+      state.notify.open = false;
+      renderNotifyModal();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && state.notify.open) {
+      state.notify.open = false;
+      renderNotifyModal();
     }
   });
 }

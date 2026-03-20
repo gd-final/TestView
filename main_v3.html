@@ -122,6 +122,10 @@
         <i class="fas fa-shipping-fast" aria-hidden="true"></i>
         <span>배송조회</span>
       </a>
+      <a href="/notifications" th:href="@{/notifications}" class="gh__util-btn gh__util-btn--notify" id="ghNotifyBtn" aria-label="알림" aria-expanded="false" aria-controls="ghNotifyModal">
+        <i class="fas fa-bell" aria-hidden="true"></i>
+        <span>알림</span>
+      </a>
       <a href="/cart" th:href="@{/cart}" class="gh__util-btn gh__util-btn--cart" aria-label="장바구니 3개">
         <i class="fas fa-shopping-cart" aria-hidden="true"></i>
         <span>장바구니</span>
@@ -733,7 +737,7 @@
       <em>바로가기</em>
     </span>
   </a>
-  <a href="/cs-inquiry" th:href="@{/cs-inquiry}" class="quick-side__item" aria-label="1대1 문의">
+  <a class="quick-side__item" id="quickChatBtn" aria-label="1대1 문의" aria-expanded="false" aria-controls="quickChatModal">
     <i class="fas fa-comment-dots" aria-hidden="true"></i>
     <span class="quick-side__text">
       <strong>1:1 문의</strong>
@@ -752,6 +756,168 @@
     <i class="fas fa-arrow-up" aria-hidden="true"></i>
     <span>최상단</span>
   </button>
+</div>
+
+<div class="gh-notify-modal" id="ghNotifyModal" aria-hidden="true">
+  <div class="gh-notify-modal__backdrop"></div>
+  <section class="gh-notify-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ghNotifyTitle">
+    <div class="gh-notify-modal__head">
+      <div>
+        <strong class="gh-notify-modal__title" id="ghNotifyTitle">알림 내역</strong>
+        <p class="gh-notify-modal__sub">최근 확인이 필요한 주문·배송·문의 알림입니다.</p>
+      </div>
+      <button type="button" class="gh-notify-modal__close" id="ghNotifyCloseBtn" aria-label="알림 모달 닫기">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="gh-notify-modal__list" id="ghNotifyList"></div>
+  </section>
+</div>
+
+<div class="quick-chat-modal" id="quickChatModal" aria-hidden="true">
+  <div class="quick-chat-modal__backdrop"></div>
+  <section class="quick-chat-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="quickChatTitle">
+    <div class="quick-chat-modal__head">
+      <div class="quick-chat-modal__brand">
+        <div class="quick-chat-modal__brand-mark" aria-hidden="true">
+          <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
+            <rect width="28" height="28" rx="6" fill="#1c3d5a"></rect>
+            <rect x="6" y="6" width="7" height="7" rx="1" fill="#ffffff" opacity="0.9"></rect>
+            <rect x="15" y="6" width="7" height="7" rx="1" fill="#ffffff" opacity="0.6"></rect>
+            <rect x="6" y="15" width="7" height="7" rx="1" fill="#ffffff" opacity="0.6"></rect>
+            <rect x="15" y="15" width="7" height="7" rx="1" fill="#4da6e8" opacity="0.9"></rect>
+          </svg>
+        </div>
+        <div class="quick-chat-modal__brand-text">
+          <strong id="quickChatTitle">Goodee B2B</strong>
+          <span>기업 전용 실시간 상담</span>
+        </div>
+      </div>
+      <button type="button" class="quick-chat-modal__close" id="quickChatCloseBtn" aria-label="실시간 채팅 닫기">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+
+    <div class="quick-chat-modal__body">
+      <div class="quick-chat-home is-active" id="quickChatHomeView">
+        <div class="quick-chat-home__card">
+          <div class="quick-chat-home__company">
+            <div class="quick-chat-home__company-mark" aria-hidden="true">
+              <svg width="34" height="34" viewBox="0 0 28 28" fill="none">
+                <rect width="28" height="28" rx="6" fill="#1c3d5a"></rect>
+                <rect x="6" y="6" width="7" height="7" rx="1" fill="#ffffff" opacity="0.9"></rect>
+                <rect x="15" y="6" width="7" height="7" rx="1" fill="#ffffff" opacity="0.6"></rect>
+                <rect x="6" y="15" width="7" height="7" rx="1" fill="#ffffff" opacity="0.6"></rect>
+                <rect x="15" y="15" width="7" height="7" rx="1" fill="#4da6e8" opacity="0.9"></rect>
+              </svg>
+            </div>
+            <div class="quick-chat-home__company-text">
+              <strong>Goodee B2B</strong>
+            </div>
+          </div>
+
+          <div class="quick-chat-home__message">
+            <strong>안녕하세요 고객님.</strong>
+            <p>기업 구매, 배송 일정, 견적 문의를 빠르게 도와드리고 있습니다.</p>
+            <p>로그인 후 채팅을 남겨주시면 더욱 정확한 상담이 가능합니다.</p>
+            <p>원하시는 문의 내용을 선택해 주세요.</p>
+          </div>
+
+          <button type="button" class="quick-chat-home__action" id="quickChatStartBtn">
+            1:1 상담 문의
+          </button>
+
+          <p class="quick-chat-home__time">
+            월요일 오전 8:30부터 운영해요
+          </p>
+        </div>
+      </div>
+
+      <div class="quick-chat-conversation" id="quickChatConversationView">
+        <div class="quick-chat-conversation__empty" id="quickChatConversationEmpty">
+          <div class="quick-chat-conversation__head">
+            <strong class="quick-chat-conversation__title">대화</strong>
+          </div>
+
+          <div class="quick-chat-empty">
+            <div class="quick-chat-empty__icon" aria-hidden="true">
+              <i class="far fa-comment-dots" aria-hidden="true"></i>
+            </div>
+            <p class="quick-chat-empty__text">대화를 시작해보세요</p>
+          </div>
+
+          <div class="quick-chat-conversation__footer">
+            <button type="button" class="quick-chat-conversation__new" id="quickChatNewInquiryBtn">
+              새 문의하기 <i class="fas fa-paper-plane" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="quick-chat-thread" id="quickChatThreadView">
+          <div class="quick-chat-thread__head">
+            <button type="button" class="quick-chat-thread__back" id="quickChatBackBtn" aria-label="대화 목록으로 돌아가기">
+              <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            </button>
+            <div class="quick-chat-thread__brand">
+              <div class="quick-chat-thread__mark" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                  <rect width="28" height="28" rx="6" fill="#1c3d5a"></rect>
+                  <rect x="6" y="6" width="7" height="7" rx="1" fill="#ffffff" opacity="0.9"></rect>
+                  <rect x="15" y="6" width="7" height="7" rx="1" fill="#ffffff" opacity="0.6"></rect>
+                  <rect x="6" y="15" width="7" height="7" rx="1" fill="#ffffff" opacity="0.6"></rect>
+                  <rect x="15" y="15" width="7" height="7" rx="1" fill="#4da6e8" opacity="0.9"></rect>
+                </svg>
+              </div>
+              <div class="quick-chat-thread__brand-text">
+                <strong>Goodee B2B</strong>
+                <span>월요일 오전 8:30부터 운영해요</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-chat-thread__banner">
+            <i class="fas fa-bullhorn" aria-hidden="true"></i>
+            <span>오늘도 더 예쁜 Goodee B2B</span>
+          </div>
+
+          <div class="quick-chat-thread__messages">
+            <div class="quick-chat-thread__message">
+              <p>안녕하세요 고객님.</p>
+              <p>오늘의 더 예쁜 <strong>Goodee B2B</strong> 입니다.</p>
+              <p>로그인 후 채팅을 남겨주시면 더욱 정확한 상담이 가능합니다.</p>
+              <p>원하시는 문의 내용을 선택해 주세요.</p>
+            </div>
+
+            <div class="quick-chat-thread__meta">Goodee B2B, 오후 5:07</div>
+
+            <div class="quick-chat-thread__chips">
+              <button type="button" class="quick-chat-thread__chip">교환/반품</button>
+              <button type="button" class="quick-chat-thread__chip">배송</button>
+              <button type="button" class="quick-chat-thread__chip">주간 Best</button>
+              <button type="button" class="quick-chat-thread__chip">입고지연 상품</button>
+              <button type="button" class="quick-chat-thread__chip">상품</button>
+              <button type="button" class="quick-chat-thread__chip">쿠폰사용문의</button>
+              <button type="button" class="quick-chat-thread__chip">기타 문의</button>
+            </div>
+          </div>
+
+          <div class="quick-chat-thread__composer">
+            <input type="text" class="quick-chat-thread__input" placeholder="문의 내용을 입력해 주세요." aria-label="상담 내용 입력">
+            <button type="button" class="quick-chat-thread__send">전송</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-chat-modal__tabs">
+      <button type="button" class="quick-chat-tab is-active" data-chat-tab="home">
+        <span>홈</span>
+      </button>
+      <button type="button" class="quick-chat-tab" data-chat-tab="conversation">
+        <span>대화</span>
+      </button>
+    </div>
+  </section>
 </div>
 
 <script src="main_v3.js" th:src="@{/js/main_v3.js}"></script>

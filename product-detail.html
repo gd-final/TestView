@@ -86,6 +86,9 @@
       <a href="/login"       th:href="@{/login}"       class="gh__util-btn"><i class="fas fa-user" aria-hidden="true"></i><span>로그인</span></a>
       <a href="/mypage"      th:href="@{/mypage}"      class="gh__util-btn"><i class="fas fa-th-large" aria-hidden="true"></i><span>마이페이지</span></a>
       <a href="/order/track" th:href="@{/order/track}" class="gh__util-btn"><i class="fas fa-shipping-fast" aria-hidden="true"></i><span>배송조회</span></a>
+      <a href="/notifications" th:href="@{/notifications}" class="gh__util-btn gh__util-btn--notify" id="ghNotifyBtn" aria-label="알림" aria-expanded="false" aria-controls="ghNotifyModal">
+        <i class="fas fa-bell" aria-hidden="true"></i><span>알림</span>
+      </a>
       <a href="/cart"        th:href="@{/cart}"        class="gh__util-btn gh__util-btn--cart" aria-label="장바구니">
         <i class="fas fa-shopping-cart" aria-hidden="true"></i><span>장바구니</span>
         <em class="gh__cart-badge" th:text="${cartCount}">3</em>
@@ -99,35 +102,39 @@
      th:replace="fragments/layout :: catStrip"
      ════════════════════════════════════════ -->
 <div class="cat-strip" role="navigation" aria-label="카테고리 탐색">
-  <div class="cat-strip__scroll">
+  <div class="cat-strip__scroll" id="v3CatNav">
     <div class="cat-all" id="v3CatAll">
-      <button class="cat-all__btn" aria-expanded="false" aria-controls="v3CatPanel" aria-label="전체 카테고리">
-        <i class="fas fa-grip-horizontal" aria-hidden="true"></i><span>전체</span>
-      </button>
-      <div class="cat-all__panel" id="v3CatPanel" aria-hidden="true">
-        <a href="/category/office"   class="cat-panel-row"><i class="fas fa-pencil-alt"></i><span>사무용품</span></a>
-        <a href="/category/daily"    class="cat-panel-row"><i class="fas fa-home"></i><span>생활용품</span></a>
-        <a href="/category/kitchen"  class="cat-panel-row"><i class="fas fa-utensils"></i><span>주방용품</span></a>
-        <a href="/category/digital"  class="cat-panel-row"><i class="fas fa-laptop"></i><span>디지털/가전</span></a>
-        <a href="/category/package"  class="cat-panel-row"><i class="fas fa-box"></i><span>포장/배송</span></a>
-        <a href="/category/promo"    class="cat-panel-row"><i class="fas fa-gift"></i><span>판촉물</span></a>
-        <a href="/category/season"   class="cat-panel-row"><i class="fas fa-snowflake"></i><span>시즌상품</span></a>
-        <a href="/category/cleaning" class="cat-panel-row"><i class="fas fa-broom"></i><span>청소/위생</span></a>
-      </div>
+      <a
+        href="/category"
+        th:href="@{/category}"
+        class="cat-all__btn cat-trigger"
+        data-cat-key="all"
+        aria-expanded="false"
+        aria-controls="v3CatMega"
+        aria-label="전체 카테고리"
+      >
+        <i class="fas fa-grip-horizontal" aria-hidden="true"></i>
+        <span>전체</span>
+      </a>
     </div>
     <ul class="cat-chips" role="list">
-      <li><a href="/category/office"   class="cat-chip is-active"><i class="fas fa-pencil-alt"></i> 사무용품</a></li>
-      <li><a href="/category/daily"    class="cat-chip"><i class="fas fa-home"></i> 생활용품</a></li>
-      <li><a href="/category/kitchen"  class="cat-chip"><i class="fas fa-utensils"></i> 주방용품</a></li>
-      <li><a href="/category/digital"  class="cat-chip"><i class="fas fa-laptop"></i> 디지털/가전</a></li>
-      <li><a href="/category/package"  class="cat-chip"><i class="fas fa-box"></i> 포장/배송</a></li>
-      <li><a href="/category/promo"    class="cat-chip"><i class="fas fa-gift"></i> 판촉물</a></li>
-      <li><a href="/category/season"   class="cat-chip"><i class="fas fa-snowflake"></i> 시즌상품</a></li>
-      <li><a href="/category/cleaning" class="cat-chip"><i class="fas fa-broom"></i> 청소/위생</a></li>
+      <li><a href="/category/office" th:href="@{/category/office}" class="cat-chip cat-trigger" data-cat-key="office" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-pencil-alt"></i> 사무용품</a></li>
+      <li><a href="/category/daily" th:href="@{/category/daily}" class="cat-chip cat-trigger" data-cat-key="daily" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-home"></i> 생활용품</a></li>
+      <li><a href="/category/kitchen" th:href="@{/category/kitchen}" class="cat-chip cat-trigger" data-cat-key="kitchen" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-utensils"></i> 주방용품</a></li>
+      <li><a href="/category/digital" th:href="@{/category/digital}" class="cat-chip cat-trigger" data-cat-key="digital" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-laptop"></i> 디지털/가전</a></li>
+      <li><a href="/category/package" th:href="@{/category/package}" class="cat-chip cat-trigger" data-cat-key="package" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-box"></i> 포장/배송</a></li>
+      <li><a href="/category/promo" th:href="@{/category/promo}" class="cat-chip cat-trigger" data-cat-key="promo" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-gift"></i> 판촉물</a></li>
+      <li><a href="/category/season" th:href="@{/category/season}" class="cat-chip cat-trigger" data-cat-key="season" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-snowflake"></i> 시즌상품</a></li>
+      <li><a href="/category/cleaning" th:href="@{/category/cleaning}" class="cat-chip cat-trigger" data-cat-key="cleaning" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-broom"></i> 청소/위생</a></li>
     </ul>
     <a href="/bulk-order" th:href="@{/bulk-order}" class="cat-strip__cta">
       <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i> 대량견적
     </a>
+  </div>
+  <div class="cat-mega" id="v3CatMega" aria-hidden="true">
+    <div class="cat-mega__inner">
+      <div class="cat-mega__tree" id="v3CatMegaTree"></div>
+    </div>
   </div>
 </div>
 
@@ -590,6 +597,22 @@
   <i class="fas fa-check-circle" aria-hidden="true"></i>
   <span class="pd-toast__msg">장바구니에 담았습니다.</span>
   <a href="/cart" class="pd-toast__link">바로 보기</a>
+</div>
+
+<div class="gh-notify-modal" id="ghNotifyModal" aria-hidden="true">
+  <div class="gh-notify-modal__backdrop"></div>
+  <section class="gh-notify-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ghNotifyTitle">
+    <div class="gh-notify-modal__head">
+      <div>
+        <strong class="gh-notify-modal__title" id="ghNotifyTitle">알림 내역</strong>
+        <p class="gh-notify-modal__sub">최근 확인이 필요한 주문·배송·문의 알림입니다.</p>
+      </div>
+      <button type="button" class="gh-notify-modal__close" id="ghNotifyCloseBtn" aria-label="알림 모달 닫기">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="gh-notify-modal__list" id="ghNotifyList"></div>
+  </section>
 </div>
 
 <script src="product-detail.js" th:src="@{/js/product-detail.js}"></script>

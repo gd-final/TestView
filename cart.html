@@ -85,6 +85,9 @@
       <a href="/login"       th:href="@{/login}"       class="gh__util-btn"><i class="fas fa-user" aria-hidden="true"></i><span>로그인</span></a>
       <a href="/mypage"      th:href="@{/mypage}"      class="gh__util-btn"><i class="fas fa-th-large" aria-hidden="true"></i><span>마이페이지</span></a>
       <a href="/order/track" th:href="@{/order/track}" class="gh__util-btn"><i class="fas fa-shipping-fast" aria-hidden="true"></i><span>배송조회</span></a>
+      <a href="/notifications" th:href="@{/notifications}" class="gh__util-btn gh__util-btn--notify" id="ghNotifyBtn" aria-label="알림" aria-expanded="false" aria-controls="ghNotifyModal">
+        <i class="fas fa-bell" aria-hidden="true"></i><span>알림</span>
+      </a>
       <a href="/cart"        th:href="@{/cart}"        class="gh__util-btn gh__util-btn--cart" aria-label="장바구니">
         <i class="fas fa-shopping-cart" aria-hidden="true"></i><span>장바구니</span>
         <em class="gh__cart-badge" th:text="${cartCount}">8</em>
@@ -556,13 +559,9 @@
         </div>
 
         <div class="cart-cta">
-          <button type="button" class="btn-primary cart-cta__order" id="orderBtn" disabled>
-            <i class="fas fa-shopping-bag" aria-hidden="true"></i>
-            선택 상품 주문하기
-          </button>
           <button type="button" class="btn-ghost cart-cta__quote" id="quoteBtn">
             <i class="fas fa-file-invoice" aria-hidden="true"></i>
-            견적서 작성
+            모든 견적서 작성
           </button>
         </div>
       </div>
@@ -610,7 +609,7 @@
   <div class="gf__inner">
     <div class="gf__top">
       <div class="gf__brand">
-        <div class="gf__logo-mark" aria-hidden="true">GB</div>
+        <div class="gf__logo-mark" aria-hidden="true">TH</div>
         <div>
           <p class="gf__brand-name">Goodee B2B</p>
           <p class="gf__brand-sub">BtoB 기업 공급 플랫폼</p>
@@ -645,6 +644,22 @@
 <div class="cart-toast" id="cartToast" role="alert" aria-live="polite" aria-atomic="true">
   <i class="fas fa-check-circle" aria-hidden="true"></i>
   <span class="cart-toast__msg">삭제되었습니다.</span>
+</div>
+
+<div class="gh-notify-modal" id="ghNotifyModal" aria-hidden="true">
+  <div class="gh-notify-modal__backdrop"></div>
+  <section class="gh-notify-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="ghNotifyTitle">
+    <div class="gh-notify-modal__head">
+      <div>
+        <strong class="gh-notify-modal__title" id="ghNotifyTitle">알림 내역</strong>
+        <p class="gh-notify-modal__sub">최근 확인이 필요한 주문·배송·문의 알림입니다.</p>
+      </div>
+      <button type="button" class="gh-notify-modal__close" id="ghNotifyCloseBtn" aria-label="알림 모달 닫기">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="gh-notify-modal__list" id="ghNotifyList"></div>
+  </section>
 </div>
 
 <script src="cart.js" th:src="@{/js/cart.js}"></script>

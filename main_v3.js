@@ -61,6 +61,44 @@ const state = {
     timer: null,
     DELAY: 5000,
   },
+  notify: {
+    open: false,
+    items: [
+      {
+        type: '주문',
+        icon: 'fas fa-file-invoice',
+        time: '방금 전',
+        title: '주문번호 TH-240320-0184가 접수되었습니다.',
+        desc: '결제 확인 후 출고 일정이 확정되면 다시 안내드립니다.',
+      },
+      {
+        type: '배송',
+        icon: 'fas fa-shipping-fast',
+        time: '12분 전',
+        title: '택배 박스 대(400×300×200) 상품이 출고 준비 중입니다.',
+        desc: '송장 등록이 완료되면 배송조회에서 바로 확인할 수 있습니다.',
+      },
+      {
+        type: '문의',
+        icon: 'fas fa-comment-dots',
+        time: '1시간 전',
+        title: '1:1 문의에 대한 답변이 등록되었습니다.',
+        desc: '판촉물 인쇄 옵션 관련 문의에 담당자가 답변을 남겼습니다.',
+      },
+      {
+        type: '회원',
+        icon: 'fas fa-bell',
+        time: '오늘',
+        title: '법인 회원 전용 3월 공급가 업데이트가 적용되었습니다.',
+        desc: '사무용품과 포장/배송 카테고리 일부 상품의 회원가가 조정되었습니다.',
+      },
+    ],
+  },
+  chat: {
+    open: false,
+    tab: 'home',
+    threadOpen: false,
+  },
   quickMenu: {
     showTop: false,
   },
@@ -364,6 +402,13 @@ const ACTION = {
   HOT_NEXT: 'HOT_NEXT',
   HOT_TOGGLE: 'HOT_TOGGLE',
   HOT_CLOSE: 'HOT_CLOSE',
+  NOTIFY_TOGGLE: 'NOTIFY_TOGGLE',
+  NOTIFY_CLOSE: 'NOTIFY_CLOSE',
+  CHAT_OPEN: 'CHAT_OPEN',
+  CHAT_CLOSE: 'CHAT_CLOSE',
+  CHAT_SET_TAB: 'CHAT_SET_TAB',
+  CHAT_OPEN_THREAD: 'CHAT_OPEN_THREAD',
+  CHAT_CLOSE_THREAD: 'CHAT_CLOSE_THREAD',
 };
 
 
@@ -488,6 +533,48 @@ function dispatch(action, payload) {
     case ACTION.HOT_CLOSE:
       state.hot.open = false;
       renderHotWidget();
+      break;
+
+    case ACTION.NOTIFY_TOGGLE:
+      state.notify.open = !state.notify.open;
+      renderNotifyModal();
+      break;
+
+    case ACTION.NOTIFY_CLOSE:
+      state.notify.open = false;
+      renderNotifyModal();
+      break;
+
+    case ACTION.CHAT_OPEN:
+      state.chat.open = true;
+      state.chat.tab = payload === 'conversation' ? 'conversation' : 'home';
+      state.chat.threadOpen = false;
+      renderChatModal();
+      break;
+
+    case ACTION.CHAT_CLOSE:
+      state.chat.open = false;
+      state.chat.tab = 'home';
+      state.chat.threadOpen = false;
+      renderChatModal();
+      break;
+
+    case ACTION.CHAT_SET_TAB:
+      state.chat.tab = payload === 'conversation' ? 'conversation' : 'home';
+      if (state.chat.tab !== 'conversation') state.chat.threadOpen = false;
+      renderChatModal();
+      break;
+
+    case ACTION.CHAT_OPEN_THREAD:
+      state.chat.tab = 'conversation';
+      state.chat.threadOpen = true;
+      renderChatModal();
+      break;
+
+    case ACTION.CHAT_CLOSE_THREAD:
+      state.chat.tab = 'conversation';
+      state.chat.threadOpen = false;
+      renderChatModal();
       break;
   }
 }
@@ -668,6 +755,56 @@ function renderQuickMenu() {
   const topBtn = document.getElementById('quickTopBtn');
   if (!topBtn) return;
   topBtn.classList.toggle('is-visible', state.quickMenu.showTop);
+}
+
+function renderNotifyModal() {
+  const modal = document.getElementById('ghNotifyModal');
+  const list = document.getElementById('ghNotifyList');
+  const trigger = document.getElementById('ghNotifyBtn');
+  if (!modal || !list || !trigger) return;
+
+  modal.classList.toggle('is-open', state.notify.open);
+  modal.setAttribute('aria-hidden', String(!state.notify.open));
+  trigger.setAttribute('aria-expanded', String(state.notify.open));
+
+  list.innerHTML = state.notify.items.map((item) => `
+    <article class="gh-notify-item">
+      <div class="gh-notify-item__body">
+        <div class="gh-notify-item__top">
+          <span class="gh-notify-item__badge">${escapeHtml(item.type)}</span>
+          <span class="gh-notify-item__time">${escapeHtml(item.time)}</span>
+        </div>
+        <p class="gh-notify-item__title">${escapeHtml(item.title)}</p>
+        <p class="gh-notify-item__desc">${escapeHtml(item.desc)}</p>
+      </div>
+    </article>
+  `).join('');
+}
+
+function renderChatModal() {
+  const modal = document.getElementById('quickChatModal');
+  const trigger = document.getElementById('quickChatBtn');
+  const homeView = document.getElementById('quickChatHomeView');
+  const conversationView = document.getElementById('quickChatConversationView');
+  const conversationEmpty = document.getElementById('quickChatConversationEmpty');
+  const threadView = document.getElementById('quickChatThreadView');
+  if (!modal || !trigger || !homeView || !conversationView || !conversationEmpty || !threadView) return;
+
+  const isConversation = state.chat.tab === 'conversation';
+  modal.classList.toggle('is-open', state.chat.open);
+  modal.setAttribute('aria-hidden', String(!state.chat.open));
+  trigger.setAttribute('aria-expanded', String(state.chat.open));
+
+  homeView.classList.toggle('is-active', !isConversation);
+  conversationView.classList.toggle('is-active', isConversation);
+  conversationEmpty.classList.toggle('is-active', isConversation && !state.chat.threadOpen);
+  threadView.classList.toggle('is-active', isConversation && state.chat.threadOpen);
+
+  modal.querySelectorAll('[data-chat-tab]').forEach((tabBtn) => {
+    const isActive = tabBtn.dataset.chatTab === state.chat.tab;
+    tabBtn.classList.toggle('is-active', isActive);
+    tabBtn.setAttribute('aria-pressed', String(isActive));
+  });
 }
 
 
@@ -911,11 +1048,75 @@ function bindEvents() {
     }
   });
 
+  const notifyBtn = document.getElementById('ghNotifyBtn');
+  const notifyModal = document.getElementById('ghNotifyModal');
+  const chatBtn = document.getElementById('quickChatBtn');
+  const chatModal = document.getElementById('quickChatModal');
+  notifyBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(ACTION.NOTIFY_TOGGLE);
+  });
+
+  notifyModal?.addEventListener('click', (e) => {
+    if (e.target.closest('#ghNotifyCloseBtn') || e.target.classList.contains('gh-notify-modal__backdrop')) {
+      dispatch(ACTION.NOTIFY_CLOSE);
+      return;
+    }
+
+    if (e.target.closest('.gh-notify-modal__dialog')) {
+      e.stopPropagation();
+    }
+  });
+
+  chatBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(ACTION.CHAT_OPEN);
+  });
+
+  chatModal?.addEventListener('click', (e) => {
+    if (e.target.closest('.quick-chat-modal__dialog')) {
+      e.stopPropagation();
+    }
+
+    if (e.target.closest('#quickChatCloseBtn') || e.target.classList.contains('quick-chat-modal__backdrop')) {
+      dispatch(ACTION.CHAT_CLOSE);
+      return;
+    }
+
+    const startBtn = e.target.closest('#quickChatStartBtn');
+    if (startBtn) {
+      dispatch(ACTION.CHAT_SET_TAB, 'conversation');
+      return;
+    }
+
+    const newInquiryBtn = e.target.closest('#quickChatNewInquiryBtn');
+    if (newInquiryBtn) {
+      dispatch(ACTION.CHAT_OPEN_THREAD);
+      return;
+    }
+
+    const backBtn = e.target.closest('#quickChatBackBtn');
+    if (backBtn) {
+      dispatch(ACTION.CHAT_CLOSE_THREAD);
+      return;
+    }
+
+    const tabBtn = e.target.closest('[data-chat-tab]');
+    if (tabBtn) {
+      dispatch(ACTION.CHAT_SET_TAB, tabBtn.dataset.chatTab);
+      return;
+    }
+  });
+
   /* ── 외부 클릭 시 드롭다운 닫기 ── */
   document.addEventListener('click', () => {
     if (state.catDropdown.open) dispatch(ACTION.CAT_CLOSE);
     if (state.search.open) dispatch(ACTION.SEARCH_CLOSE);
     if (state.hot.open) dispatch(ACTION.HOT_CLOSE);
+    if (state.notify.open) dispatch(ACTION.NOTIFY_CLOSE);
+    if (state.chat.open) dispatch(ACTION.CHAT_CLOSE);
   });
 
   /* ── 드롭다운 내부 클릭 버블링 차단 ── */
@@ -957,6 +1158,12 @@ function bindEvents() {
     }
     if (e.key === 'Escape' && state.hot.open) {
       dispatch(ACTION.HOT_CLOSE);
+    }
+    if (e.key === 'Escape' && state.notify.open) {
+      dispatch(ACTION.NOTIFY_CLOSE);
+    }
+    if (e.key === 'Escape' && state.chat.open) {
+      dispatch(ACTION.CHAT_CLOSE);
     }
   });
 
@@ -1018,6 +1225,8 @@ function init() {
   renderCatDropdown();
   renderSearchLayer();
   renderHotWidget();
+  renderNotifyModal();
+  renderChatModal();
   renderQuickMenu();
 
   /* 자동재생 시작 */
