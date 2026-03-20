@@ -138,37 +138,34 @@
      V3: 스크롤 가능한 칩 바, 전체카테고리 별도 토글
      ═══════════════════════════════════════════ -->
 <div class="cat-strip" role="navigation" aria-label="카테고리 탐색">
-  <div class="cat-strip__scroll">
+  <div class="cat-strip__scroll" id="v3CatNav">
 
     <!-- 전체 카테고리 토글 -->
     <div class="cat-all" id="v3CatAll">
-      <button class="cat-all__btn" aria-expanded="false" aria-controls="v3CatPanel" aria-label="전체 카테고리">
+      <a
+        href="/category"
+        th:href="@{/category}"
+        class="cat-all__btn cat-trigger"
+        data-cat-key="all"
+        aria-expanded="false"
+        aria-controls="v3CatMega"
+        aria-label="전체 카테고리"
+      >
         <i class="fas fa-grip-horizontal" aria-hidden="true"></i>
         <span>전체</span>
-      </button>
-      <!-- 드롭다운: V3는 2열 아이콘 그리드 (V2의 4열과 다름) -->
-      <div class="cat-all__panel" id="v3CatPanel" aria-hidden="true">
-        <a href="/category/office"   class="cat-panel-row"><i class="fas fa-pencil-alt"></i><span>사무용품</span></a>
-        <a href="/category/daily"    class="cat-panel-row"><i class="fas fa-home"></i><span>생활용품</span></a>
-        <a href="/category/kitchen"  class="cat-panel-row"><i class="fas fa-utensils"></i><span>주방용품</span></a>
-        <a href="/category/digital"  class="cat-panel-row"><i class="fas fa-laptop"></i><span>디지털/가전</span></a>
-        <a href="/category/package"  class="cat-panel-row"><i class="fas fa-box"></i><span>포장/배송</span></a>
-        <a href="/category/promo"    class="cat-panel-row"><i class="fas fa-gift"></i><span>판촉물</span></a>
-        <a href="/category/season"   class="cat-panel-row"><i class="fas fa-snowflake"></i><span>시즌상품</span></a>
-        <a href="/category/cleaning" class="cat-panel-row"><i class="fas fa-broom"></i><span>청소/위생</span></a>
-      </div>
+      </a>
     </div>
 
     <!-- 카테고리 칩 목록 (스크롤) -->
     <ul class="cat-chips" role="list">
-      <li><a href="/category/office"   class="cat-chip"><i class="fas fa-pencil-alt"></i> 사무용품</a></li>
-      <li><a href="/category/daily"    class="cat-chip"><i class="fas fa-home"></i> 생활용품</a></li>
-      <li><a href="/category/kitchen"  class="cat-chip"><i class="fas fa-utensils"></i> 주방용품</a></li>
-      <li><a href="/category/digital"  class="cat-chip"><i class="fas fa-laptop"></i> 디지털/가전</a></li>
-      <li><a href="/category/package"  class="cat-chip"><i class="fas fa-box"></i> 포장/배송</a></li>
-      <li><a href="/category/promo"    class="cat-chip"><i class="fas fa-gift"></i> 판촉물</a></li>
-      <li><a href="/category/season"   class="cat-chip"><i class="fas fa-snowflake"></i> 시즌상품</a></li>
-      <li><a href="/category/cleaning" class="cat-chip"><i class="fas fa-broom"></i> 청소/위생</a></li>
+      <li><a href="/category/office"   th:href="@{/category/office}" class="cat-chip cat-trigger" data-cat-key="office" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-pencil-alt"></i> 사무용품</a></li>
+      <li><a href="/category/daily"    th:href="@{/category/daily}" class="cat-chip cat-trigger" data-cat-key="daily" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-home"></i> 생활용품</a></li>
+      <li><a href="/category/kitchen"  th:href="@{/category/kitchen}" class="cat-chip cat-trigger" data-cat-key="kitchen" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-utensils"></i> 주방용품</a></li>
+      <li><a href="/category/digital"  th:href="@{/category/digital}" class="cat-chip cat-trigger" data-cat-key="digital" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-laptop"></i> 디지털/가전</a></li>
+      <li><a href="/category/package"  th:href="@{/category/package}" class="cat-chip cat-trigger" data-cat-key="package" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-box"></i> 포장/배송</a></li>
+      <li><a href="/category/promo"    th:href="@{/category/promo}" class="cat-chip cat-trigger" data-cat-key="promo" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-gift"></i> 판촉물</a></li>
+      <li><a href="/category/season"   th:href="@{/category/season}" class="cat-chip cat-trigger" data-cat-key="season" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-snowflake"></i> 시즌상품</a></li>
+      <li><a href="/category/cleaning" th:href="@{/category/cleaning}" class="cat-chip cat-trigger" data-cat-key="cleaning" aria-expanded="false" aria-controls="v3CatMega"><i class="fas fa-broom"></i> 청소/위생</a></li>
     </ul>
 
     <!-- 우측 고정: 대량견적 버튼 -->
@@ -176,6 +173,11 @@
       <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i> 대량견적
     </a>
 
+  </div>
+  <div class="cat-mega" id="v3CatMega" aria-hidden="true">
+    <div class="cat-mega__inner">
+      <div class="cat-mega__tree" id="v3CatMegaTree"></div>
+    </div>
   </div>
 </div>
 
