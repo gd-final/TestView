@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상품 목록 — Goodee B2B</title>
+  <link rel="stylesheet" href="v3-common.css"       th:href="@{/css/v3-common.css}">
+  <link rel="stylesheet" href="product-list.css"    th:href="@{/css/product-list.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     GLOBAL HEADER
+     th:replace="fragments/layout :: header"
+     ════════════════════════════════════════ -->
+<header class="gh">
+  <div class="gh__wrap">
+    <a href="/" th:href="@{/}" class="gh__brand" aria-label="Goodee B2B 홈">
+      <svg class="gh__brand-icon" width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect width="28" height="28" rx="6" fill="#1c3d5a"/>
+        <rect x="6"  y="6"  width="7" height="7" rx="1" fill="#fff" opacity="0.9"/>
+        <rect x="15" y="6"  width="7" height="7" rx="1" fill="#fff" opacity="0.6"/>
+        <rect x="6"  y="15" width="7" height="7" rx="1" fill="#fff" opacity="0.6"/>
+        <rect x="15" y="15" width="7" height="7" rx="1" fill="#4da6e8" opacity="0.9"/>
+      </svg>
+      <span class="gh__brand-name">Goodee <strong>B2B</strong></span>
+    </a>
+
+    <form class="gh__search" action="/search" th:action="@{/search}" method="get" role="search">
+      <div class="gh__search-box">
+        <button type="submit" class="gh__search-submit" aria-label="검색">
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </button>
+        <input type="search" name="q" class="gh__search-input"
+               placeholder="품목명, 카테고리, 품번으로 검색" aria-label="상품 검색" autocomplete="off">
+        <div class="gh__search-divider" aria-hidden="true"></div>
+        <select name="searchType" class="gh__search-select" aria-label="검색 기준 선택">
+          <option value="">전체</option>
+          <option value="product">상품명</option>
+          <option value="tag">태그</option>
+        </select>
+      </div>
+      <div class="gh-search-layer" id="ghSearchLayer" aria-hidden="true">
+        <section class="gh-search-layer__section" aria-labelledby="ghRecentTitle">
+          <div class="gh-search-layer__head">
+            <strong class="gh-search-layer__title" id="ghRecentTitle">최근 검색어</strong>
+            <button type="button" class="gh-search-layer__clear" id="ghRecentClearBtn">전체 삭제</button>
+          </div>
+          <ul class="gh-search-layer__recent-list" id="ghRecentList" role="list"></ul>
+          <p class="gh-search-layer__empty" id="ghRecentEmpty" hidden>최근 검색어가 없습니다.</p>
+        </section>
+        <section class="gh-search-layer__section" aria-labelledby="ghPopularTitle">
+          <div class="gh-search-layer__head">
+            <strong class="gh-search-layer__title" id="ghPopularTitle">실시간 인기 검색어</strong>
+            <button type="button" class="gh-search-layer__more" id="ghPopularToggleBtn" aria-expanded="false">더보기</button>
+          </div>
+          <ol class="gh-search-layer__popular-list" id="ghPopularList"></ol>
+        </section>
+      </div>
+    </form>
+    <div class="gh-hot" id="ghHotWidget">
+      <button type="button" class="gh-hot__trigger" id="ghHotTriggerBtn"
+              aria-label="주간 인기 검색어 전체 보기" aria-expanded="false" aria-controls="ghHotPanel">
+        <span class="gh-hot__slot" id="ghHotCurrent" aria-live="polite">
+          <span class="gh-hot__label">주간 인기 검색어</span>
+          <span class="gh-hot__item">
+            <span class="gh-hot__rank">10위</span>
+            <span class="gh-hot__keyword">명함 케이스</span>
+          </span>
+        </span>
+        <span class="gh-hot__toggle-mark" aria-hidden="true">
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </span>
+      </button>
+      <div class="gh-hot__panel" id="ghHotPanel" aria-hidden="true">
+        <div class="gh-hot__panel-head">
+          <strong class="gh-hot__panel-title">주간 인기 검색어</strong>
+          <button type="button" class="gh-hot__close" id="ghHotCloseBtn" aria-label="주간 인기 검색어 닫기">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+        <ol class="gh-hot__list" id="ghHotList"></ol>
+      </div>
+    </div>
+
+    <nav class="gh__util" aria-label="유틸 메뉴">
+      <a href="/login"       th:href="@{/login}"       class="gh__util-btn"><i class="fas fa-user" aria-hidden="true"></i><span>로그인</span></a>
+      <a href="/mypage"      th:href="@{/mypage}"      class="gh__util-btn"><i class="fas fa-th-large" aria-hidden="true"></i><span>마이페이지</span></a>
+      <a href="/order/track" th:href="@{/order/track}" class="gh__util-btn"><i class="fas fa-shipping-fast" aria-hidden="true"></i><span>배송조회</span></a>
+      <a href="/cart"        th:href="@{/cart}"        class="gh__util-btn gh__util-btn--cart" aria-label="장바구니">
+        <i class="fas fa-shopping-cart" aria-hidden="true"></i><span>장바구니</span>
+        <em class="gh__cart-badge" th:text="${cartCount}">3</em>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     CATEGORY STRIP (GNB)
+     th:replace="fragments/layout :: catStrip"
+     ════════════════════════════════════════ -->
+<div class="cat-strip" role="navigation" aria-label="카테고리 탐색">
+  <div class="cat-strip__scroll">
+    <div class="cat-all" id="v3CatAll">
+      <button class="cat-all__btn" aria-expanded="false" aria-controls="v3CatPanel" aria-label="전체 카테고리">
+        <i class="fas fa-grip-horizontal" aria-hidden="true"></i><span>전체</span>
+      </button>
+      <div class="cat-all__panel" id="v3CatPanel" aria-hidden="true">
+        <a href="/category/office"   class="cat-panel-row"><i class="fas fa-pencil-alt"></i><span>사무용품</span></a>
+        <a href="/category/daily"    class="cat-panel-row"><i class="fas fa-home"></i><span>생활용품</span></a>
+        <a href="/category/kitchen"  class="cat-panel-row"><i class="fas fa-utensils"></i><span>주방용품</span></a>
+        <a href="/category/digital"  class="cat-panel-row"><i class="fas fa-laptop"></i><span>디지털/가전</span></a>
+        <a href="/category/package"  class="cat-panel-row"><i class="fas fa-box"></i><span>포장/배송</span></a>
+        <a href="/category/promo"    class="cat-panel-row"><i class="fas fa-gift"></i><span>판촉물</span></a>
+        <a href="/category/season"   class="cat-panel-row"><i class="fas fa-snowflake"></i><span>시즌상품</span></a>
+        <a href="/category/cleaning" class="cat-panel-row"><i class="fas fa-broom"></i><span>청소/위생</span></a>
+      </div>
+    </div>
+    <ul class="cat-chips" role="list">
+      <li><a href="/category/office"   class="cat-chip"><i class="fas fa-pencil-alt"></i> 사무용품</a></li>
+      <li><a href="/category/daily"    class="cat-chip"><i class="fas fa-home"></i> 생활용품</a></li>
+      <li><a href="/category/kitchen"  class="cat-chip"><i class="fas fa-utensils"></i> 주방용품</a></li>
+      <li><a href="/category/digital"  class="cat-chip"><i class="fas fa-laptop"></i> 디지털/가전</a></li>
+      <li><a href="/category/package"  class="cat-chip"><i class="fas fa-box"></i> 포장/배송</a></li>
+      <li><a href="/category/promo"    class="cat-chip"><i class="fas fa-gift"></i> 판촉물</a></li>
+      <li><a href="/category/season"   class="cat-chip"><i class="fas fa-snowflake"></i> 시즌상품</a></li>
+      <li><a href="/category/cleaning" class="cat-chip"><i class="fas fa-broom"></i> 청소/위생</a></li>
+    </ul>
+    <a href="/bulk-order" th:href="@{/bulk-order}" class="cat-strip__cta">
+      <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i> 대량견적
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE CONTENT
+     ════════════════════════════════════════ -->
+<main class="page-content">
+
+  <!-- 브레드크럼 -->
+  <nav class="breadcrumb" aria-label="현재 위치">
+    <ol class="breadcrumb__list">
+      <li><a href="/" th:href="@{/}">홈</a></li>
+      <li><a href="/category" th:href="@{/category}" th:text="${categoryName}">사무용품</a></li>
+      <li aria-current="page" th:text="${subCategoryName}">상품 목록</li>
+    </ol>
+  </nav>
+
+  <!-- 페이지 타이틀 -->
+  <div class="page-title-row">
+    <div>
+      <h1 class="page-title" th:text="${categoryName + ' 상품 목록'}">사무용품 상품 목록</h1>
+      <p class="page-title-sub">
+        총 <strong th:text="${#numbers.formatInteger(totalCount, 3, 'COMMA')}">1,248</strong>개 상품
+      </p>
+    </div>
+  </div>
+
+  <!-- ── 본문: 좌측 필터 + 우측 상품 목록 ── -->
+  <div class="pl-layout">
+
+    <!-- ────────────────────────────────
+         LEFT: 필터 사이드바
+         ──────────────────────────────── -->
+    <aside class="pl-filter" aria-label="필터">
+
+      <!-- 필터 헤더 (모바일: 토글) -->
+      <div class="pl-filter__header">
+        <strong class="pl-filter__title"><i class="fas fa-sliders-h" aria-hidden="true"></i> 필터</strong>
+        <button class="pl-filter__reset" id="filterResetBtn" type="button">초기화</button>
+      </div>
+
+      <!-- 카테고리 필터 -->
+      <div class="pl-filter__section">
+        <h3 class="pl-filter__section-title">카테고리</h3>
+        <ul class="pl-filter__list" role="list">
+          <li>
+            <label class="pl-filter__item">
+              <input type="radio" name="category" value="" checked> 전체
+            </label>
+          </li>
+          <li th:each="cat : ${categories}">
+            <label class="pl-filter__item">
+              <input type="radio" name="category" th:value="${cat.code}"
+                     th:classappend="${cat.code == selectedCategory} ? 'is-active'">
+              <span th:text="${cat.name}">사무용품</span>
+              <em class="pl-filter__count" th:text="'(' + ${cat.count} + ')'">（234）</em>
+            </label>
+          </li>
+          <!-- 더미 (Thymeleaf 미적용 시 노출) -->
+          <li th:if="${#lists.isEmpty(categories)}">
+            <label class="pl-filter__item"><input type="radio" name="category" value="office" checked> 사무용품 <em class="pl-filter__count">(234)</em></label>
+          </li>
+          <li th:if="${#lists.isEmpty(categories)}">
+            <label class="pl-filter__item"><input type="radio" name="category" value="daily"> 생활용품 <em class="pl-filter__count">(189)</em></label>
+          </li>
+          <li th:if="${#lists.isEmpty(categories)}">
+            <label class="pl-filter__item"><input type="radio" name="category" value="kitchen"> 주방용품 <em class="pl-filter__count">(97)</em></label>
+          </li>
+          <li th:if="${#lists.isEmpty(categories)}">
+            <label class="pl-filter__item"><input type="radio" name="category" value="digital"> 디지털/가전 <em class="pl-filter__count">(312)</em></label>
+          </li>
+          <li th:if="${#lists.isEmpty(categories)}">
+            <label class="pl-filter__item"><input type="radio" name="category" value="package"> 포장/배송 <em class="pl-filter__count">(155)</em></label>
+          </li>
+          <li th:if="${#lists.isEmpty(categories)}">
+            <label class="pl-filter__item"><input type="radio" name="category" value="promo"> 판촉물 <em class="pl-filter__count">(261)</em></label>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 가격 범위 필터 -->
+      <div class="pl-filter__section">
+        <h3 class="pl-filter__section-title">가격</h3>
+        <div class="pl-filter__price-btns" role="group" aria-label="가격 범위 선택">
+          <button type="button" class="pl-filter__price-btn is-active" data-min="0"     data-max="0">전체</button>
+          <button type="button" class="pl-filter__price-btn"           data-min="0"     data-max="10000">~1만원</button>
+          <button type="button" class="pl-filter__price-btn"           data-min="10000" data-max="50000">1~5만원</button>
+          <button type="button" class="pl-filter__price-btn"           data-min="50000" data-max="200000">5~20만원</button>
+          <button type="button" class="pl-filter__price-btn"           data-min="200000" data-max="0">20만원~</button>
+        </div>
+        <div class="pl-filter__price-range">
+          <div class="field">
+            <label class="field__label" for="priceMin">최소 금액</label>
+            <input type="number" id="priceMin" class="field__input" placeholder="0" min="0" step="1000">
+          </div>
+          <span class="pl-filter__price-dash" aria-hidden="true">~</span>
+          <div class="field">
+            <label class="field__label" for="priceMax">최대 금액</label>
+            <input type="number" id="priceMax" class="field__input" placeholder="제한 없음" min="0" step="1000">
+          </div>
+        </div>
+      </div>
+
+      <!-- 필터 적용 버튼 (모바일) -->
+      <button type="button" class="btn-primary pl-filter__apply-btn" id="filterApplyBtn">
+        필터 적용
+      </button>
+
+    </aside>
+
+    <!-- ────────────────────────────────
+         RIGHT: 상품 목록 영역
+         ──────────────────────────────── -->
+    <div class="pl-main">
+
+      <!-- 상단 툴바: 정렬 + 뷰 전환 -->
+      <div class="pl-toolbar">
+        <div class="pl-toolbar__left">
+          <!-- 활성 필터 태그 -->
+          <div class="pl-active-filters" id="activeFilters" role="list" aria-label="적용된 필터">
+            <!-- JS로 동적 생성 -->
+          </div>
+        </div>
+        <div class="pl-toolbar__right">
+          <!-- 정렬 -->
+          <select class="pl-sort-select field__select" id="sortSelect" aria-label="정렬 기준">
+            <option value="popular">인기순</option>
+            <option value="recommended">추천순</option>
+            <option value="latest">최신순</option>
+            <option value="price_asc">낮은가격순</option>
+            <option value="price_desc">높은가격순</option>
+          </select>
+          <!-- 뷰 전환 -->
+          <div class="pl-view-toggle" role="group" aria-label="목록 보기 방식">
+            <button type="button" class="pl-view-btn is-active" data-view="grid" aria-label="그리드 보기" aria-pressed="true">
+              <i class="fas fa-th" aria-hidden="true"></i>
+            </button>
+            <button type="button" class="pl-view-btn" data-view="list" aria-label="리스트 보기" aria-pressed="false">
+              <i class="fas fa-list" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── 상품 목록 (그리드/리스트 전환) ── -->
+      <div class="pl-grid" id="productGrid" data-view="grid">
+
+        <!-- Empty State -->
+        <div class="pl-empty" th:if="${#lists.isEmpty(products)}" role="status">
+          <i class="fas fa-box-open pl-empty__icon" aria-hidden="true"></i>
+          <p class="pl-empty__title">검색 결과가 없습니다</p>
+          <p class="pl-empty__desc">필터 조건을 변경하거나 다른 키워드로 검색해 보세요.</p>
+          <a href="/category" th:href="@{/category}" class="btn-secondary">전체 카테고리 보기</a>
+        </div>
+
+        <!-- 상품 카드 반복 -->
+        <!-- th:each="product : ${products}" -->
+
+        <!-- 카드 1: 그리드 뷰 -->
+        <article class="pl-card" data-id="1001" th:each="product : ${products}">
+          <a href="/product/1" th:href="@{/product/{id}(id=${product.id})}" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+            <div class="pl-card__thumb pl-card__thumb--office">
+              <i class="fas fa-pencil-ruler" aria-hidden="true"></i>
+            </div>
+          </a>
+          <div class="pl-card__body">
+            <span class="pl-card__cat" th:text="${product.categoryName}">사무용품</span>
+            <h3 class="pl-card__name">
+              <a href="/product/1" th:href="@{/product/{id}(id=${product.id})}" th:text="${product.name}">
+                A4 복사용지 80g (500매 × 5권)
+              </a>
+            </h3>
+            <ul class="pl-card__specs">
+              <li><span>최소 주문</span><span th:text="${product.moqLabel}">1박스</span></li>
+              <li>
+                <span>납품일정</span>
+                <span th:text="${product.deliveryLabel}">D+1</span>
+              </li>
+              <li><span>공급사</span><span th:text="${product.supplierName}">제일제지</span></li>
+            </ul>
+            <div class="pl-card__price-row">
+              <span class="pl-card__price-label">회원할인가</span>
+              <strong class="pl-card__price"
+                      th:text="'₩' + ${#numbers.formatInteger(product.price, 3, 'COMMA')}">₩23,800</strong>
+              <del class="pl-card__price-original" th:if="${product.discount > 0}"
+                   th:text="'₩' + ${#numbers.formatInteger(product.originalPrice, 3, 'COMMA')}">₩28,000</del>
+              <span class="pl-card__unit" th:text="${'/' + product.unit}">/박스</span>
+            </div>
+          </div>
+          <div class="pl-card__foot">
+            <button class="btn-ghost pl-card__wish-btn" type="button"
+                    th:data-id="${product.id}" aria-label="관심 상품 등록">
+              <i class="far fa-heart" aria-hidden="true"></i>
+            </button>
+            <button class="btn-ghost pl-card__cart-btn" type="button"
+                    th:data-id="${product.id}" aria-label="장바구니 담기">
+              <i class="fas fa-cart-plus" aria-hidden="true"></i>
+            </button>
+            <button class="btn-primary pl-card__order-btn" type="button"
+                    th:data-id="${product.id}">주문·견적</button>
+          </div>
+        </article>
+
+        <!-- 더미 카드 (Thymeleaf 미적용 시 노출) -->
+        <th:block th:if="${#lists.isEmpty(products)}">
+
+          <article class="pl-card" data-id="1001">
+            <a href="/product/1001" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--office">
+                <i class="fas fa-pencil-ruler" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">사무용품</span>
+              <h3 class="pl-card__name"><a href="/product/1001">A4 복사용지 80g (500매 × 5권)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>1박스</span></li>
+                <li><span>납품일정</span><span>D+1</span></li>
+                <li><span>공급사</span><span>제일제지</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩23,800</strong>
+                <del class="pl-card__price-original">₩28,000</del>
+                <span class="pl-card__unit">/박스</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1001" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1001" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1001">주문·견적</button>
+            </div>
+          </article>
+
+          <article class="pl-card" data-id="1002">
+            <a href="/product/1002" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--office">
+                <i class="fas fa-folder-open" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">사무용품</span>
+              <h3 class="pl-card__name"><a href="/product/1002">스테플러 + 침 세트 (HD-10N)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>10개</span></li>
+                <li><span>납품일정</span><span>D+1</span></li>
+                <li><span>공급사</span><span>맥스오피스</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩4,400</strong>
+                <del class="pl-card__price-original">₩5,500</del>
+                <span class="pl-card__unit">/개</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1002" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1002" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1002">주문·견적</button>
+            </div>
+          </article>
+
+          <article class="pl-card" data-id="1003">
+            <a href="/product/1003" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--digital">
+                <i class="fas fa-print" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">디지털/가전</span>
+              <h3 class="pl-card__name"><a href="/product/1003">레이저 복합기 (흑백/컬러, A3)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>1대</span></li>
+                <li><span>납품일정</span><span>D+3</span></li>
+                <li><span>공급사</span><span>교세라비즈</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩1,280,000</strong>
+                <del class="pl-card__price-original">₩1,390,000</del>
+                <span class="pl-card__unit">/대</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1003" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1003" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1003">주문·견적</button>
+            </div>
+          </article>
+
+          <article class="pl-card" data-id="1004">
+            <a href="/product/1004" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--pack">
+                <i class="fas fa-box" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">포장/배송</span>
+              <h3 class="pl-card__name"><a href="/product/1004">택배 박스 대 (400×300×200, 100개)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>1묶음(100개)</span></li>
+                <li><span>납품일정</span><span>D+1</span></li>
+                <li><span>공급사</span><span>패키온</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩68,000</strong>
+                <del class="pl-card__price-original">₩74,000</del>
+                <span class="pl-card__unit">/묶음</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1004" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1004" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1004">주문·견적</button>
+            </div>
+          </article>
+
+          <article class="pl-card" data-id="1005">
+            <a href="/product/1005" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--clean">
+                <i class="fas fa-pump-soap" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">청소/위생</span>
+              <h3 class="pl-card__name"><a href="/product/1005">손 소독제 500ml (24개입 박스)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>1박스</span></li>
+                <li><span>납품일정</span><span>D+1</span></li>
+                <li><span>공급사</span><span>케어플러스</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩42,000</strong>
+                <del class="pl-card__price-original">₩46,000</del>
+                <span class="pl-card__unit">/박스</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1005" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1005" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1005">주문·견적</button>
+            </div>
+          </article>
+
+          <article class="pl-card" data-id="1006">
+            <a href="/product/1006" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--promo">
+                <i class="fas fa-mug-hot" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">판촉물</span>
+              <h3 class="pl-card__name"><a href="/product/1006">기업 로고 인쇄 텀블러 (500ml, 50개)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>50개</span></li>
+                <li><span>납품일정</span><span>D+7</span></li>
+                <li><span>공급사</span><span>굿즈팩토리</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩187,500</strong>
+                <del class="pl-card__price-original">₩205,000</del>
+                <span class="pl-card__unit">/50개</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1006" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1006" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1006">주문·견적</button>
+            </div>
+          </article>
+
+          <article class="pl-card" data-id="1007">
+            <a href="/product/1007" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--kitchen">
+                <i class="fas fa-coffee" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">주방용품</span>
+              <h3 class="pl-card__name"><a href="/product/1007">업무용 캡슐 커피머신 (50인 이상)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>1대</span></li>
+                <li><span>납품일정</span><span>D+1</span></li>
+                <li><span>공급사</span><span>네스프레소B2B</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩480,000</strong>
+                <del class="pl-card__price-original">₩528,000</del>
+                <span class="pl-card__unit">/대</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1007" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1007" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1007">주문·견적</button>
+            </div>
+          </article>
+
+          <article class="pl-card" data-id="1008">
+            <a href="/product/1008" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--office">
+                <i class="fas fa-chair" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">사무용품</span>
+              <h3 class="pl-card__name"><a href="/product/1008">메쉬 사무용 의자 (요추 지지형)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>5개</span></li>
+                <li><span>납품일정</span><span>D+2</span></li>
+                <li><span>공급사</span><span>퍼시스</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩288,000</strong>
+                <del class="pl-card__price-original">₩320,000</del>
+                <span class="pl-card__unit">/개</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1008" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1008" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1008">주문·견적</button>
+            </div>
+          </article>
+
+          <article class="pl-card" data-id="1009">
+            <a href="/product/1009" class="pl-card__img-wrap" tabindex="-1" aria-hidden="true">
+              <div class="pl-card__thumb pl-card__thumb--daily">
+                <i class="fas fa-mug-saucer" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pl-card__body">
+              <span class="pl-card__cat">생활용품</span>
+              <h3 class="pl-card__name"><a href="/product/1009">탕비실 종이컵 13oz (1,000개)</a></h3>
+              <ul class="pl-card__specs">
+                <li><span>최소 주문</span><span>1박스</span></li>
+                <li><span>납품일정</span><span>D+1</span></li>
+                <li><span>공급사</span><span>오피스케어</span></li>
+              </ul>
+              <div class="pl-card__price-row">
+                <span class="pl-card__price-label">회원할인가</span>
+                <strong class="pl-card__price">₩27,500</strong>
+                <del class="pl-card__price-original">₩30,000</del>
+                <span class="pl-card__unit">/박스</span>
+              </div>
+            </div>
+            <div class="pl-card__foot">
+              <button class="btn-ghost pl-card__wish-btn" type="button" data-id="1009" aria-label="관심 상품 등록"><i class="far fa-heart" aria-hidden="true"></i></button>
+              <button class="btn-ghost pl-card__cart-btn" type="button" data-id="1009" aria-label="장바구니 담기"><i class="fas fa-cart-plus" aria-hidden="true"></i></button>
+              <button class="btn-primary pl-card__order-btn" type="button" data-id="1009">주문·견적</button>
+            </div>
+          </article>
+
+        </th:block><!-- /.더미 카드 -->
+
+      </div><!-- /#productGrid -->
+
+      <!-- ── 페이지네이션 ── -->
+      <nav class="pl-pagination" aria-label="페이지 탐색" th:unless="${#lists.isEmpty(products)}">
+        <button type="button" class="pl-page-btn" aria-label="이전 페이지" disabled>
+          <i class="fas fa-chevron-left" aria-hidden="true"></i>
+        </button>
+
+        <div class="pl-pagination__pages">
+          <span th:each="page : ${pages}">
+            <button type="button" class="pl-page-btn"
+                    th:classappend="${page == currentPage} ? 'is-active'"
+                    th:attr="aria-current=${page == currentPage} ? 'page'"
+                    th:text="${page}">1</button>
+          </span>
+
+          <!-- 더미 페이지네이션 -->
+          <th:block th:if="${#lists.isEmpty(products)}">
+            <button type="button" class="pl-page-btn is-active" aria-current="page">1</button>
+            <button type="button" class="pl-page-btn">2</button>
+            <button type="button" class="pl-page-btn">3</button>
+            <span class="pl-page-ellipsis">…</span>
+            <button type="button" class="pl-page-btn">8</button>
+          </th:block>
+        </div>
+
+        <button type="button" class="pl-page-btn" aria-label="다음 페이지">
+          <i class="fas fa-chevron-right" aria-hidden="true"></i>
+        </button>
+      </nav>
+
+    </div><!-- /.pl-main -->
+
+  </div><!-- /.pl-layout -->
+
+</main>
+
+<!-- ════════════════════════════════════════
+     GLOBAL FOOTER
+     th:replace="fragments/layout :: footer"
+     ════════════════════════════════════════ -->
+<footer class="gf">
+  <div class="gf__inner">
+    <div class="gf__top">
+      <div class="gf__brand">
+        <div class="gf__logo-mark" aria-hidden="true">TH</div>
+        <div>
+          <p class="gf__brand-name">Goodee B2B</p>
+          <p class="gf__brand-sub">BtoB 기업 공급 플랫폼</p>
+        </div>
+      </div>
+      <nav class="gf__policy" aria-label="정책 메뉴">
+        <a href="/terms">이용약관</a>
+        <a href="/privacy" class="gf__policy--em">개인정보처리방침</a>
+        <a href="/guide">이용안내</a>
+        <a href="/partnership">제휴·입점</a>
+      </nav>
+    </div>
+    <div class="gf__info">
+      <p>
+        <strong>주식회사 트레이드허브</strong> &nbsp;|&nbsp;
+        대표이사: 홍길동 &nbsp;|&nbsp;
+        사업자등록번호: 123-45-67890 &nbsp;|&nbsp;
+        통신판매업: 제2024-서울강남-0001호
+      </p>
+      <p>
+        주소: 서울특별시 강남구 테헤란로 123, 트레이드허브빌딩 7층 &nbsp;|&nbsp;
+        대표번호: <a href="tel:15880000">1588-0000</a> &nbsp;|&nbsp;
+        이메일: <a href="mailto:biz@tradehub.co.kr">biz@tradehub.co.kr</a> &nbsp;|&nbsp;
+        운영: 평일 09:00–18:00
+      </p>
+    </div>
+    <p class="gf__copy">© 2024 Goodee B2B. All rights reserved.</p>
+  </div>
+</footer>
+
+<div class="quick-side" aria-label="고정 퀵메뉴">
+  <a href="/cs" th:href="@{/cs}" class="quick-side__item" aria-label="고객센터 바로가기">
+    <i class="fas fa-headset" aria-hidden="true"></i>
+    <span class="quick-side__text">
+      <strong>고객센터</strong>
+      <em>바로가기</em>
+    </span>
+  </a>
+  <a href="/cs-inquiry" th:href="@{/cs-inquiry}" class="quick-side__item" aria-label="1대1 문의">
+    <i class="fas fa-comment-dots" aria-hidden="true"></i>
+    <span class="quick-side__text">
+      <strong>1:1 문의</strong>
+      <em>빠른 접수</em>
+    </span>
+  </a>
+  <a href="/recent-products" th:href="@{/recent-products}" class="quick-side__recent" aria-label="최근 본 상품">
+    <span class="quick-side__recent-stack" aria-hidden="true">
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--1"><i class="fas fa-box" aria-hidden="true"></i></span>
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--2"><i class="fas fa-tag" aria-hidden="true"></i></span>
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--3"><i class="fas fa-cube" aria-hidden="true"></i></span>
+    </span>
+    <span class="quick-side__recent-label">최근본상품</span>
+  </a>
+  <button type="button" class="quick-side__top" id="quickTopBtn" aria-label="최상단으로 이동">
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    <span>최상단</span>
+  </button>
+</div>
+
+<!-- 모바일 필터 오버레이 -->
+<div class="pl-filter-overlay" id="filterOverlay" aria-hidden="true"></div>
+
+<!-- 장바구니 토스트 알림 -->
+<div class="pl-toast" id="cartToast" role="alert" aria-live="polite" aria-atomic="true">
+  <i class="fas fa-check-circle" aria-hidden="true"></i>
+  <span class="pl-toast__msg">장바구니에 담았습니다.</span>
+  <a href="/cart" class="pl-toast__link">바로 보기</a>
+</div>
+
+<script src="product-list.js" th:src="@{/js/product-list.js}"></script>
+</body>
+</html>

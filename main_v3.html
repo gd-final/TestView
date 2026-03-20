@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TradeHub Supply — BtoB 기업 공급 플랫폼</title>
+  <title>Goodee B2B — BtoB 기업 공급 플랫폼</title>
   <link rel="stylesheet" href="main_v3.css" th:href="@{/css/main_v3.css}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -26,7 +26,7 @@
   <div class="gh__wrap">
 
     <!-- 브랜드 로고 -->
-    <a href="/" th:href="@{/}" class="gh__brand" aria-label="TradeHub Supply 홈">
+    <a href="/" th:href="@{/}" class="gh__brand" aria-label="Goodee B2B 홈">
       <svg class="gh__brand-icon" width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
         <rect width="28" height="28" rx="6" fill="#1c3d5a"/>
         <rect x="6" y="6" width="7" height="7" rx="1" fill="#fff" opacity="0.9"/>
@@ -34,10 +34,10 @@
         <rect x="6" y="15" width="7" height="7" rx="1" fill="#fff" opacity="0.6"/>
         <rect x="15" y="15" width="7" height="7" rx="1" fill="#4da6e8" opacity="0.9"/>
       </svg>
-      <span class="gh__brand-name">TradeHub<strong>Supply</strong></span>
+      <span class="gh__brand-name">Goodee <strong>B2B</strong></span>
     </a>
 
-    <!-- 검색창 (V3: 중앙 확장 + 필터 태그 형태) -->
+    <!-- 검색창 (V3: 중앙 확장 + 최근/인기 검색어 레이어) -->
     <form class="gh__search" action="/search" th:action="@{/search}" method="get" role="search">
       <div class="gh__search-box">
         <button type="submit" class="gh__search-submit" aria-label="검색">
@@ -52,18 +52,61 @@
           autocomplete="off"
         >
         <div class="gh__search-divider" aria-hidden="true"></div>
-        <select name="category" class="gh__search-select" aria-label="카테고리 선택">
+        <select name="searchType" class="gh__search-select" aria-label="검색 기준 선택">
           <option value="">전체</option>
-          <option value="office">사무용품</option>
-          <option value="daily">생활용품</option>
-          <option value="kitchen">주방용품</option>
-          <option value="digital">디지털/가전</option>
-          <option value="package">포장/배송</option>
-          <option value="promo">판촉물</option>
-          <option value="season">시즌상품</option>
+          <option value="product">상품명</option>
+          <option value="tag">태그</option>
         </select>
       </div>
+      <div class="gh-search-layer" id="ghSearchLayer" aria-hidden="true">
+        <section class="gh-search-layer__section" aria-labelledby="ghRecentTitle">
+          <div class="gh-search-layer__head">
+            <strong class="gh-search-layer__title" id="ghRecentTitle">최근 검색어</strong>
+            <button type="button" class="gh-search-layer__clear" id="ghRecentClearBtn">전체 삭제</button>
+          </div>
+          <ul class="gh-search-layer__recent-list" id="ghRecentList" role="list"></ul>
+          <p class="gh-search-layer__empty" id="ghRecentEmpty" hidden>최근 검색어가 없습니다.</p>
+        </section>
+        <section class="gh-search-layer__section" aria-labelledby="ghPopularTitle">
+          <div class="gh-search-layer__head">
+            <strong class="gh-search-layer__title" id="ghPopularTitle">실시간 인기 검색어</strong>
+            <button type="button" class="gh-search-layer__more" id="ghPopularToggleBtn" aria-expanded="false">더보기</button>
+          </div>
+          <ol class="gh-search-layer__popular-list" id="ghPopularList"></ol>
+        </section>
+      </div>
     </form>
+
+    <div class="gh-hot" id="ghHotWidget">
+      <button
+        type="button"
+        class="gh-hot__trigger"
+        id="ghHotTriggerBtn"
+        aria-label="주간 인기 검색어 전체 보기"
+        aria-expanded="false"
+        aria-controls="ghHotPanel"
+      >
+        <span class="gh-hot__slot" id="ghHotCurrent" aria-live="polite">
+          <span class="gh-hot__label">주간 인기 검색어</span>
+          <span class="gh-hot__item">
+            <span class="gh-hot__rank">10위</span>
+            <span class="gh-hot__keyword">명함 케이스</span>
+          </span>
+        </span>
+        <span class="gh-hot__toggle-mark" aria-hidden="true">
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </span>
+      </button>
+      <div class="gh-hot__panel" id="ghHotPanel" aria-hidden="true">
+        <div class="gh-hot__panel-head">
+          <strong class="gh-hot__panel-title">주간 인기 검색어</strong>
+          <button type="button" class="gh-hot__close" id="ghHotCloseBtn" aria-label="주간 인기 검색어 닫기">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+        <ol class="gh-hot__list" id="ghHotList"></ol>
+      </div>
+    </div>
 
     <!-- 우측 유틸 (V3: 아이콘 버튼 + 레이블 수직 배치) -->
     <nav class="gh__util" aria-label="유틸 메뉴">
@@ -358,34 +401,38 @@
 
 
   <!--
-    ── CATALOG GRID: 4열 그리드 상품 (V3 핵심 차이)
+    ── CATALOG GRID: 5열 한 줄 카탈로그
        V1: 세로형 카드 가로 슬라이드 (translateX)
        V2: 가로형 카드 그리드 (translateY 페이지)
-       V3: 4열 카탈로그 그리드, 카드 상단에 카테고리 컬러 바, 페이지 전환
+       V3: 5열 카탈로그 리스트, 카드 상단에 카테고리 컬러 바, 페이지 전환
   -->
   <section class="catalog-section">
     <div class="catalog-wrap">
 
       <div class="catalog-header">
         <div class="catalog-header__left">
-          <h2 class="catalog-title">추천 상품 카탈로그</h2>
-          <p class="catalog-sub">당일 출고 우선 · 기업 구매 빈도 상위 품목</p>
+          <div class="catalog-heading">
+            <h2 class="catalog-title">추천 상품 카탈로그</h2>
+            <div class="catalog-header__controls" aria-label="추천 상품 페이지 이동">
+              <button class="catalog-nav-btn" id="v3CatPrev" aria-label="이전 페이지" disabled>
+                <i class="fas fa-chevron-left" aria-hidden="true"></i>
+              </button>
+              <span class="catalog-page-info" id="v3PageInfo">1 / 1</span>
+              <button class="catalog-nav-btn" id="v3CatNext" aria-label="다음 페이지" disabled>
+                <i class="fas fa-chevron-right" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+          <p class="catalog-sub">법인 회원 전용 혜택가 · 자주 찾는 추천 품목</p>
         </div>
         <div class="catalog-header__right">
-          <button class="catalog-nav-btn" id="v3CatPrev" aria-label="이전 페이지" disabled>
-            <i class="fas fa-chevron-left" aria-hidden="true"></i> 이전
-          </button>
-          <span class="catalog-page-info" id="v3PageInfo">1 / 1</span>
-          <button class="catalog-nav-btn" id="v3CatNext" aria-label="다음 페이지" disabled>
-            다음 <i class="fas fa-chevron-right" aria-hidden="true"></i>
-          </button>
           <a href="/products/all" th:href="@{/products/all}" class="catalog-all-link">
             전체 카탈로그 <i class="fas fa-arrow-right" aria-hidden="true"></i>
           </a>
         </div>
       </div>
 
-      <!-- 4열 카드 그리드 -->
+      <!-- 5열 카드 리스트 -->
       <!-- Thymeleaf: th:each="product : ${recommendProducts}" -->
       <div class="catalog-grid" id="v3CatalogGrid">
 
@@ -404,9 +451,10 @@
                 <li><span>납품일정</span><span>D+2</span></li>
               </ul>
               <div class="cg-card__price-row">
+                <span class="cg-card__price-label">회원할인가</span>
                 <strong class="cg-card__price">₩28,500</strong>
+                <s class="cg-card__price-origin">₩31,000</s>
                 <span class="cg-card__unit">/박스</span>
-                <span class="cg-card__badge cg-card__badge--hot">기업인기</span>
               </div>
             </div>
           </a>
@@ -433,9 +481,10 @@
                 <li><span>납품일정</span><span>D+5</span></li>
               </ul>
               <div class="cg-card__price-row">
+                <span class="cg-card__price-label">회원할인가</span>
                 <strong class="cg-card__price">₩32,000</strong>
+                <s class="cg-card__price-origin">₩35,000</s>
                 <span class="cg-card__unit">/100개</span>
-                <span class="cg-card__badge cg-card__badge--new">신상품</span>
               </div>
             </div>
           </a>
@@ -459,10 +508,12 @@
               <h3 class="cg-card__name">OPP 테이프 50m × 24개입</h3>
               <ul class="cg-card__specs">
                 <li><span>최소 주문</span><span>3박스</span></li>
-                <li><span>납품일정</span><span class="spec-fast">당일 출고</span></li>
+                <li><span>납품일정</span><span>D+1</span></li>
               </ul>
               <div class="cg-card__price-row">
+                <span class="cg-card__price-label">회원할인가</span>
                 <strong class="cg-card__price">₩19,800</strong>
+                <s class="cg-card__price-origin">₩22,000</s>
                 <span class="cg-card__unit">/박스</span>
               </div>
             </div>
@@ -490,9 +541,9 @@
                 <li><span>납품일정</span><span>D+3</span></li>
               </ul>
               <div class="cg-card__price-row">
+                <span class="cg-card__price-label">회원할인가</span>
+                <strong class="cg-card__price">₩14,900</strong>
                 <s class="cg-card__price-origin">₩18,000</s>
-                <strong class="cg-card__price cg-card__price--sale">₩14,900</strong>
-                <span class="cg-card__badge cg-card__badge--sale">특가</span>
               </div>
             </div>
           </a>
@@ -516,10 +567,13 @@
               <h3 class="cg-card__name">에어캡 완충재 롤 (100m)</h3>
               <ul class="cg-card__specs">
                 <li><span>최소 주문</span><span>5롤</span></li>
-                <li><span>납품일정</span><span class="spec-fast">당일 출고</span></li>
+                <li><span>납품일정</span><span>D+2</span></li>
               </ul>
               <div class="cg-card__price-row">
-                <strong class="cg-card__price cg-card__price--inquiry">견적문의</strong>
+                <span class="cg-card__price-label">회원할인가</span>
+                <strong class="cg-card__price">₩84,000</strong>
+                <s class="cg-card__price-origin">₩92,000</s>
+                <span class="cg-card__unit">/롤</span>
               </div>
             </div>
           </a>
@@ -546,9 +600,10 @@
                 <li><span>납품일정</span><span>정기납품</span></li>
               </ul>
               <div class="cg-card__price-row">
+                <span class="cg-card__price-label">회원할인가</span>
                 <strong class="cg-card__price">₩68,000</strong>
+                <s class="cg-card__price-origin">₩74,000</s>
                 <span class="cg-card__unit">/세트</span>
-                <span class="cg-card__badge cg-card__badge--hot">기업인기</span>
               </div>
             </div>
           </a>
@@ -575,9 +630,10 @@
                 <li><span>납품일정</span><span>D+3</span></li>
               </ul>
               <div class="cg-card__price-row">
+                <span class="cg-card__price-label">회원할인가</span>
                 <strong class="cg-card__price">₩245,000</strong>
+                <s class="cg-card__price-origin">₩269,000</s>
                 <span class="cg-card__unit">/대</span>
-                <span class="cg-card__badge cg-card__badge--new">신상품</span>
               </div>
             </div>
           </a>
@@ -601,10 +657,12 @@
               <h3 class="cg-card__name">손 소독제 500ml (24개입)</h3>
               <ul class="cg-card__specs">
                 <li><span>최소 주문</span><span>1박스</span></li>
-                <li><span>납품일정</span><span class="spec-fast">당일 출고</span></li>
+                <li><span>납품일정</span><span>D+1</span></li>
               </ul>
               <div class="cg-card__price-row">
+                <span class="cg-card__price-label">회원할인가</span>
                 <strong class="cg-card__price">₩42,000</strong>
+                <s class="cg-card__price-origin">₩46,000</s>
                 <span class="cg-card__unit">/박스</span>
               </div>
             </div>
@@ -633,7 +691,7 @@
       <div class="gf__brand">
         <div class="gf__logo-mark" aria-hidden="true">TH</div>
         <div>
-          <p class="gf__brand-name">TradeHub Supply</p>
+          <p class="gf__brand-name">Goodee B2B</p>
           <p class="gf__brand-sub">BtoB 기업 공급 플랫폼</p>
         </div>
       </div>
@@ -660,10 +718,39 @@
       </p>
     </div>
 
-    <p class="gf__copy">© 2024 TradeHub Corp. All rights reserved.</p>
+    <p class="gf__copy">© 2024 Goodee B2B. All rights reserved.</p>
 
   </div>
 </footer>
+
+<div class="quick-side" aria-label="고정 퀵메뉴">
+  <a href="/cs" th:href="@{/cs}" class="quick-side__item" aria-label="고객센터 바로가기">
+    <i class="fas fa-headset" aria-hidden="true"></i>
+    <span class="quick-side__text">
+      <strong>고객센터</strong>
+      <em>바로가기</em>
+    </span>
+  </a>
+  <a href="/cs-inquiry" th:href="@{/cs-inquiry}" class="quick-side__item" aria-label="1대1 문의">
+    <i class="fas fa-comment-dots" aria-hidden="true"></i>
+    <span class="quick-side__text">
+      <strong>1:1 문의</strong>
+      <em>빠른 접수</em>
+    </span>
+  </a>
+  <a href="/recent-products" th:href="@{/recent-products}" class="quick-side__recent" aria-label="최근 본 상품">
+    <span class="quick-side__recent-stack" aria-hidden="true">
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--1"><i class="fas fa-box" aria-hidden="true"></i></span>
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--2"><i class="fas fa-tag" aria-hidden="true"></i></span>
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--3"><i class="fas fa-cube" aria-hidden="true"></i></span>
+    </span>
+    <span class="quick-side__recent-label">최근본상품</span>
+  </a>
+  <button type="button" class="quick-side__top" id="quickTopBtn" aria-label="최상단으로 이동">
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    <span>최상단</span>
+  </button>
+</div>
 
 <script src="main_v3.js" th:src="@{/js/main_v3.js}"></script>
 </body>

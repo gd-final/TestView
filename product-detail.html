@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${product.name + ' — Goodee B2B'}">A4 복사용지 80g — Goodee B2B</title>
+  <link rel="stylesheet" href="v3-common.css"        th:href="@{/css/v3-common.css}">
+  <link rel="stylesheet" href="product-detail.css"   th:href="@{/css/product-detail.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     GLOBAL HEADER
+     th:replace="fragments/layout :: header"
+     ════════════════════════════════════════ -->
+<header class="gh">
+  <div class="gh__wrap">
+    <a href="/" th:href="@{/}" class="gh__brand" aria-label="Goodee B2B 홈">
+      <svg class="gh__brand-icon" width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <rect width="28" height="28" rx="6" fill="#1c3d5a"/>
+        <rect x="6"  y="6"  width="7" height="7" rx="1" fill="#fff" opacity="0.9"/>
+        <rect x="15" y="6"  width="7" height="7" rx="1" fill="#fff" opacity="0.6"/>
+        <rect x="6"  y="15" width="7" height="7" rx="1" fill="#fff" opacity="0.6"/>
+        <rect x="15" y="15" width="7" height="7" rx="1" fill="#4da6e8" opacity="0.9"/>
+      </svg>
+      <span class="gh__brand-name">Goodee <strong>B2B</strong></span>
+    </a>
+    <form class="gh__search" action="/search" th:action="@{/search}" method="get" role="search">
+      <div class="gh__search-box">
+        <button type="submit" class="gh__search-submit" aria-label="검색">
+          <i class="fas fa-search" aria-hidden="true"></i>
+        </button>
+        <input type="search" name="q" class="gh__search-input"
+               placeholder="품목명, 카테고리, 품번으로 검색" aria-label="상품 검색" autocomplete="off">
+        <div class="gh__search-divider" aria-hidden="true"></div>
+        <select name="searchType" class="gh__search-select" aria-label="검색 기준 선택">
+          <option value="">전체</option>
+          <option value="product">상품명</option>
+          <option value="tag">태그</option>
+        </select>
+      </div>
+      <div class="gh-search-layer" id="ghSearchLayer" aria-hidden="true">
+        <section class="gh-search-layer__section" aria-labelledby="ghRecentTitle">
+          <div class="gh-search-layer__head">
+            <strong class="gh-search-layer__title" id="ghRecentTitle">최근 검색어</strong>
+            <button type="button" class="gh-search-layer__clear" id="ghRecentClearBtn">전체 삭제</button>
+          </div>
+          <ul class="gh-search-layer__recent-list" id="ghRecentList" role="list"></ul>
+          <p class="gh-search-layer__empty" id="ghRecentEmpty" hidden>최근 검색어가 없습니다.</p>
+        </section>
+        <section class="gh-search-layer__section" aria-labelledby="ghPopularTitle">
+          <div class="gh-search-layer__head">
+            <strong class="gh-search-layer__title" id="ghPopularTitle">실시간 인기 검색어</strong>
+            <button type="button" class="gh-search-layer__more" id="ghPopularToggleBtn" aria-expanded="false">더보기</button>
+          </div>
+          <ol class="gh-search-layer__popular-list" id="ghPopularList"></ol>
+        </section>
+      </div>
+    </form>
+    <div class="gh-hot" id="ghHotWidget">
+      <button type="button" class="gh-hot__trigger" id="ghHotTriggerBtn"
+              aria-label="주간 인기 검색어 전체 보기" aria-expanded="false" aria-controls="ghHotPanel">
+        <span class="gh-hot__slot" id="ghHotCurrent" aria-live="polite">
+          <span class="gh-hot__label">주간 인기 검색어</span>
+          <span class="gh-hot__item">
+            <span class="gh-hot__rank">10위</span>
+            <span class="gh-hot__keyword">명함 케이스</span>
+          </span>
+        </span>
+        <span class="gh-hot__toggle-mark" aria-hidden="true">
+          <i class="fas fa-chevron-down" aria-hidden="true"></i>
+        </span>
+      </button>
+      <div class="gh-hot__panel" id="ghHotPanel" aria-hidden="true">
+        <div class="gh-hot__panel-head">
+          <strong class="gh-hot__panel-title">주간 인기 검색어</strong>
+          <button type="button" class="gh-hot__close" id="ghHotCloseBtn" aria-label="주간 인기 검색어 닫기">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </div>
+        <ol class="gh-hot__list" id="ghHotList"></ol>
+      </div>
+    </div>
+    <nav class="gh__util" aria-label="유틸 메뉴">
+      <a href="/login"       th:href="@{/login}"       class="gh__util-btn"><i class="fas fa-user" aria-hidden="true"></i><span>로그인</span></a>
+      <a href="/mypage"      th:href="@{/mypage}"      class="gh__util-btn"><i class="fas fa-th-large" aria-hidden="true"></i><span>마이페이지</span></a>
+      <a href="/order/track" th:href="@{/order/track}" class="gh__util-btn"><i class="fas fa-shipping-fast" aria-hidden="true"></i><span>배송조회</span></a>
+      <a href="/cart"        th:href="@{/cart}"        class="gh__util-btn gh__util-btn--cart" aria-label="장바구니">
+        <i class="fas fa-shopping-cart" aria-hidden="true"></i><span>장바구니</span>
+        <em class="gh__cart-badge" th:text="${cartCount}">3</em>
+      </a>
+    </nav>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════
+     CATEGORY STRIP (GNB)
+     th:replace="fragments/layout :: catStrip"
+     ════════════════════════════════════════ -->
+<div class="cat-strip" role="navigation" aria-label="카테고리 탐색">
+  <div class="cat-strip__scroll">
+    <div class="cat-all" id="v3CatAll">
+      <button class="cat-all__btn" aria-expanded="false" aria-controls="v3CatPanel" aria-label="전체 카테고리">
+        <i class="fas fa-grip-horizontal" aria-hidden="true"></i><span>전체</span>
+      </button>
+      <div class="cat-all__panel" id="v3CatPanel" aria-hidden="true">
+        <a href="/category/office"   class="cat-panel-row"><i class="fas fa-pencil-alt"></i><span>사무용품</span></a>
+        <a href="/category/daily"    class="cat-panel-row"><i class="fas fa-home"></i><span>생활용품</span></a>
+        <a href="/category/kitchen"  class="cat-panel-row"><i class="fas fa-utensils"></i><span>주방용품</span></a>
+        <a href="/category/digital"  class="cat-panel-row"><i class="fas fa-laptop"></i><span>디지털/가전</span></a>
+        <a href="/category/package"  class="cat-panel-row"><i class="fas fa-box"></i><span>포장/배송</span></a>
+        <a href="/category/promo"    class="cat-panel-row"><i class="fas fa-gift"></i><span>판촉물</span></a>
+        <a href="/category/season"   class="cat-panel-row"><i class="fas fa-snowflake"></i><span>시즌상품</span></a>
+        <a href="/category/cleaning" class="cat-panel-row"><i class="fas fa-broom"></i><span>청소/위생</span></a>
+      </div>
+    </div>
+    <ul class="cat-chips" role="list">
+      <li><a href="/category/office"   class="cat-chip is-active"><i class="fas fa-pencil-alt"></i> 사무용품</a></li>
+      <li><a href="/category/daily"    class="cat-chip"><i class="fas fa-home"></i> 생활용품</a></li>
+      <li><a href="/category/kitchen"  class="cat-chip"><i class="fas fa-utensils"></i> 주방용품</a></li>
+      <li><a href="/category/digital"  class="cat-chip"><i class="fas fa-laptop"></i> 디지털/가전</a></li>
+      <li><a href="/category/package"  class="cat-chip"><i class="fas fa-box"></i> 포장/배송</a></li>
+      <li><a href="/category/promo"    class="cat-chip"><i class="fas fa-gift"></i> 판촉물</a></li>
+      <li><a href="/category/season"   class="cat-chip"><i class="fas fa-snowflake"></i> 시즌상품</a></li>
+      <li><a href="/category/cleaning" class="cat-chip"><i class="fas fa-broom"></i> 청소/위생</a></li>
+    </ul>
+    <a href="/bulk-order" th:href="@{/bulk-order}" class="cat-strip__cta">
+      <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i> 대량견적
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE CONTENT
+     ════════════════════════════════════════ -->
+<main class="page-content">
+
+  <!-- 브레드크럼 -->
+  <nav class="breadcrumb" aria-label="현재 위치">
+    <ol class="breadcrumb__list">
+      <li><a href="/" th:href="@{/}">홈</a></li>
+      <li><a href="/category/office" th:href="@{/category/{cat}(cat=${product.categoryCode})}"
+             th:text="${product.categoryName}">사무용품</a></li>
+      <li aria-current="page" th:text="${product.name}">A4 복사용지 80g (500매 × 5권)</li>
+    </ol>
+  </nav>
+
+  <!-- ══════════════════════════════════════
+       SECTION 1: 상품 메인 (썸네일 + 주문 패널)
+       ══════════════════════════════════════ -->
+  <div class="pd-main">
+
+    <!-- ── 왼쪽: 썸네일 + 찜 ── -->
+    <div class="pd-gallery">
+      <!-- 메인 이미지 -->
+      <div class="pd-gallery__main" id="galleryMain">
+        <div class="pd-gallery__thumb pd-gallery__thumb--office" aria-label="상품 이미지">
+          <i class="fas fa-pencil-ruler" aria-hidden="true"></i>
+        </div>
+        <!-- Thymeleaf: 실제 이미지가 있을 때 -->
+        <!-- <img th:src="${product.mainImageUrl}" th:alt="${product.name}" class="pd-gallery__img"> -->
+
+        <!-- 찜 버튼 -->
+        <button type="button" class="pd-wish-btn" id="wishBtn"
+                th:data-id="${product.id}" aria-label="관심 상품 등록" aria-pressed="false">
+          <i class="far fa-heart" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- 썸네일 목록 (더미: 실제 이미지 연동 시 th:each 적용) -->
+      <div class="pd-gallery__thumbs" role="list" aria-label="상품 이미지 목록">
+        <button type="button" class="pd-gallery__thumb-btn is-active" data-index="0" aria-label="이미지 1 보기">
+          <div class="pd-gallery__thumb-icon pd-gallery__thumb--office"><i class="fas fa-pencil-ruler" aria-hidden="true"></i></div>
+        </button>
+        <button type="button" class="pd-gallery__thumb-btn" data-index="1" aria-label="이미지 2 보기">
+          <div class="pd-gallery__thumb-icon pd-gallery__thumb--office"><i class="fas fa-file-alt" aria-hidden="true"></i></div>
+        </button>
+        <button type="button" class="pd-gallery__thumb-btn" data-index="2" aria-label="이미지 3 보기">
+          <div class="pd-gallery__thumb-icon pd-gallery__thumb--office"><i class="fas fa-layer-group" aria-hidden="true"></i></div>
+        </button>
+        <button type="button" class="pd-gallery__thumb-btn" data-index="3" aria-label="이미지 4 보기">
+          <div class="pd-gallery__thumb-icon pd-gallery__thumb--office"><i class="fas fa-boxes" aria-hidden="true"></i></div>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── 오른쪽: 상품 정보 + 주문 패널 ── -->
+    <div class="pd-info">
+
+      <!-- 카테고리 + 상품명 -->
+      <div class="pd-info__header">
+        <span class="pd-info__cat" th:text="${product.categoryName}">사무용품</span>
+        <h1 class="pd-info__name" th:text="${product.name}">A4 복사용지 80g (500매 × 5권)</h1>
+        <div class="pd-price-summary" data-original-price="28000">
+          <p class="pd-price-summary__original">정가 <s id="heroOriginalPrice">₩28,000</s></p>
+          <div class="pd-price-summary__sale">
+            <span class="pd-price-summary__label">회원할인가</span>
+            <strong id="heroMemberPrice">₩23,800</strong>
+            <span class="pd-price-summary__unit">/박스</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 수량별 구매단가 표 -->
+      <div class="pd-price-table-wrap">
+        <h3 class="pd-section-title">수량별 구매단가</h3>
+        <table class="pd-price-table" aria-label="수량별 구매단가">
+          <thead>
+            <tr>
+              <th scope="col">수량</th>
+              <th scope="col">단가 (VAT 별도)</th>
+              <th scope="col">할인율</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- th:each="tier : ${product.priceTiers}" -->
+            <tr th:each="tier : ${product.priceTiers}"
+                th:classappend="${tier.active} ? 'is-active'">
+              <td th:text="${tier.qtyLabel}">1~9박스</td>
+              <td class="pd-price-table__price"
+                  th:text="'₩' + ${#numbers.formatInteger(tier.price, 3, 'COMMA')}">₩23,800</td>
+              <td th:text="${tier.discountLabel != null} ? ${tier.discountLabel} : '-'">-</td>
+            </tr>
+            <!-- 더미 (Thymeleaf 미적용 시) -->
+            <tr th:if="${#lists.isEmpty(product.priceTiers)}" class="is-active">
+              <td>1 ~ 9 박스</td>
+              <td class="pd-price-table__price">₩23,800</td>
+              <td>-</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(product.priceTiers)}">
+              <td>10 ~ 49 박스</td>
+              <td class="pd-price-table__price">₩22,500</td>
+              <td class="pd-price-table__disc">5% ↓</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(product.priceTiers)}">
+              <td>50 ~ 99 박스</td>
+              <td class="pd-price-table__price">₩21,300</td>
+              <td class="pd-price-table__disc">10% ↓</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(product.priceTiers)}">
+              <td>100 박스 이상</td>
+              <td class="pd-price-table__price">₩20,000</td>
+              <td class="pd-price-table__disc">16% ↓</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="pd-price-table__hint">※ 100박스 이상 주문 시 전담 영업 담당자가 별도 협의합니다.</p>
+      </div>
+
+      <!-- 구매 옵션 -->
+      <div class="pd-options">
+
+        <!-- 구매 수량 -->
+        <div class="pd-option-row">
+          <span class="pd-option-label">구매 수량</span>
+          <div class="pd-qty-control" role="group" aria-label="구매 수량 조절">
+            <button type="button" class="pd-qty-btn" id="qtyMinus" aria-label="수량 줄이기" disabled>
+              <i class="fas fa-minus" aria-hidden="true"></i>
+            </button>
+            <input type="number" class="pd-qty-input" id="qtyInput"
+                   value="1" min="1" max="9999" step="1"
+                   aria-label="구매 수량 입력"
+                   th:min="${product.moq}" th:value="${product.moq}">
+            <button type="button" class="pd-qty-btn" id="qtyPlus" aria-label="수량 늘리기">
+              <i class="fas fa-plus" aria-hidden="true"></i>
+            </button>
+            <span class="pd-qty-unit" th:text="'/ ' + ${product.unit}">/ 박스</span>
+          </div>
+          <span class="pd-option-hint" th:text="'최소 주문: ' + ${product.moqLabel}">최소 주문: 1박스</span>
+        </div>
+
+        <!-- 인쇄 옵션 -->
+        <div class="pd-option-row">
+          <span class="pd-option-label">인쇄 옵션</span>
+          <div class="pd-print-select-wrap">
+            <select class="pd-print-select" id="printOptionSelect" aria-label="인쇄 옵션 선택">
+              <option value="none">인쇄 없음</option>
+              <option value="1color">1도 인쇄 (+₩500/박스)</option>
+              <option value="4color">4도 인쇄 (+₩1,200/박스)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 계산 결과 -->
+        <div class="pd-calc">
+          <div class="pd-calc__row">
+            <span>구매단가</span>
+            <strong id="unitPriceDisplay">₩23,800 <small>/박스</small></strong>
+          </div>
+          <div class="pd-calc__row">
+            <span>구매금액 (VAT 별도)</span>
+            <strong id="subtotalDisplay">₩23,800</strong>
+          </div>
+          <div class="pd-calc__divider" aria-hidden="true"></div>
+          <div class="pd-calc__row pd-calc__row--total">
+            <span>총 구매금액 <em class="pd-calc__vat">(부가세 포함)</em></span>
+            <strong class="pd-calc__total-price" id="totalDisplay">₩26,180</strong>
+          </div>
+        </div>
+
+        <!-- 평균 제작 기간 -->
+        <div class="pd-delivery-info" role="note">
+          <i class="fas fa-truck" aria-hidden="true"></i>
+          <div>
+            <strong>평균 제작·납품 기간</strong>
+            <p th:text="${product.deliveryDesc}">주문 확정 후 <b>영업일 기준 1~2일 내 출고</b>. 수도권 기준 1~2일 내 도착 예정.
+            대량 주문(50박스 이상) 시 영업일 기준 2~3일 소요.</p>
+          </div>
+        </div>
+
+      </div><!-- /.pd-options -->
+
+      <!-- CTA 버튼 -->
+      <div class="pd-cta">
+        <button type="button" class="btn-primary pd-cta__cart" id="addCartBtn">
+          <i class="fas fa-cart-plus" aria-hidden="true"></i> 장바구니 담기
+        </button>
+        <button type="button" class="btn-ghost pd-cta__quote-write" id="quoteWriteBtn">
+          <i class="fas fa-file-invoice" aria-hidden="true"></i> 견적서 작성
+        </button>
+      </div>
+
+      <!-- 빠른 안내 -->
+      <ul class="pd-quick-info" aria-label="서비스 안내">
+        <li><i class="fas fa-shield-alt" aria-hidden="true"></i> 세금계산서 즉시 발행</li>
+        <li><i class="fas fa-undo-alt" aria-hidden="true"></i> 불량 상품 100% 교환/환불</li>
+        <li><i class="fas fa-headset" aria-hidden="true"></i> 전담 영업 담당자 배정</li>
+        <li><i class="fas fa-file-contract" aria-hidden="true"></i> 월 납품 계약 가능</li>
+      </ul>
+
+    </div><!-- /.pd-info -->
+  </div><!-- /.pd-main -->
+
+
+  <!-- ══════════════════════════════════════
+       SECTION 2: 유사 상품 캐러셀
+       ══════════════════════════════════════ -->
+  <section class="pd-related" aria-labelledby="relatedTitle">
+    <div class="pd-related__header">
+      <h2 class="pd-related__title" id="relatedTitle">이 상품과 유사한 상품</h2>
+      <a href="/category/office" th:href="@{/category/{cat}(cat=${product.categoryCode})}" class="pd-related__more">
+        전체 보기 <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </a>
+    </div>
+
+    <div class="pd-carousel" id="relatedCarousel">
+      <button type="button" class="pd-carousel__btn pd-carousel__btn--prev" id="carouselPrev"
+              aria-label="이전 상품" disabled>
+        <i class="fas fa-chevron-left" aria-hidden="true"></i>
+      </button>
+
+      <div class="pd-carousel__track-wrap" aria-label="유사 상품 목록">
+        <ul class="pd-carousel__track" id="carouselTrack" role="list">
+
+          <!-- th:each="rel : ${relatedProducts}" -->
+          <li class="pd-rel-card" th:each="rel : ${relatedProducts}">
+            <a href="#" th:href="@{/product/{id}(id=${rel.id})}" class="pd-rel-card__img-wrap">
+              <div class="pd-rel-card__thumb pd-rel-card__thumb--office">
+                <i class="fas fa-pencil-ruler" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pd-rel-card__body">
+              <span class="pd-rel-card__cat" th:text="${rel.categoryName}">사무용품</span>
+              <h3 class="pd-rel-card__name">
+                <a th:href="@{/product/{id}(id=${rel.id})}" th:text="${rel.name}">상품명</a>
+              </h3>
+              <div class="pd-rel-card__price-box">
+                <p class="pd-rel-card__price-original">₩26,000</p>
+                <p class="pd-rel-card__price-sale">
+                  <span class="pd-rel-card__price-label">회원할인가</span>
+                  <strong th:text="'₩' + ${#numbers.formatInteger(rel.price, 3, 'COMMA')}">₩23,800</strong>
+                  <span class="pd-rel-card__price-unit" th:text="' / ' + ${rel.unit}"> / 박스</span>
+                </p>
+              </div>
+            </div>
+          </li>
+
+          <!-- 더미 카드 (Thymeleaf 미적용 시) -->
+          <li class="pd-rel-card" th:if="${#lists.isEmpty(relatedProducts)}">
+            <a href="/product/1002" class="pd-rel-card__img-wrap">
+              <div class="pd-rel-card__thumb pd-rel-card__thumb--office">
+                <i class="fas fa-folder-open" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pd-rel-card__body">
+              <span class="pd-rel-card__cat">사무용품</span>
+              <h3 class="pd-rel-card__name"><a href="/product/1002">클리어파일 30매입 (A4)</a></h3>
+              <div class="pd-rel-card__price-box">
+                <p class="pd-rel-card__price-original">₩9,300</p>
+                <p class="pd-rel-card__price-sale"><span class="pd-rel-card__price-label">회원할인가</span><strong>₩8,500</strong><span class="pd-rel-card__price-unit"> / 팩</span></p>
+              </div>
+            </div>
+          </li>
+          <li class="pd-rel-card" th:if="${#lists.isEmpty(relatedProducts)}">
+            <a href="/product/1003" class="pd-rel-card__img-wrap">
+              <div class="pd-rel-card__thumb pd-rel-card__thumb--office">
+                <i class="fas fa-pencil-alt" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pd-rel-card__body">
+              <span class="pd-rel-card__cat">사무용품</span>
+              <h3 class="pd-rel-card__name"><a href="/product/1003">볼펜 세트 (흑/적/청 각 10자루)</a></h3>
+              <div class="pd-rel-card__price-box">
+                <p class="pd-rel-card__price-original">₩13,200</p>
+                <p class="pd-rel-card__price-sale"><span class="pd-rel-card__price-label">회원할인가</span><strong>₩12,000</strong><span class="pd-rel-card__price-unit"> / 세트</span></p>
+              </div>
+            </div>
+          </li>
+          <li class="pd-rel-card" th:if="${#lists.isEmpty(relatedProducts)}">
+            <a href="/product/1004" class="pd-rel-card__img-wrap">
+              <div class="pd-rel-card__thumb pd-rel-card__thumb--office">
+                <i class="fas fa-sticky-note" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pd-rel-card__body">
+              <span class="pd-rel-card__cat">사무용품</span>
+              <h3 class="pd-rel-card__name"><a href="/product/1004">포스트잇 76×76mm (100매×12패드)</a></h3>
+              <div class="pd-rel-card__price-box">
+                <p class="pd-rel-card__price-original">₩20,500</p>
+                <p class="pd-rel-card__price-sale"><span class="pd-rel-card__price-label">회원할인가</span><strong>₩18,900</strong><span class="pd-rel-card__price-unit"> / 묶음</span></p>
+              </div>
+            </div>
+          </li>
+          <li class="pd-rel-card" th:if="${#lists.isEmpty(relatedProducts)}">
+            <a href="/product/1005" class="pd-rel-card__img-wrap">
+              <div class="pd-rel-card__thumb pd-rel-card__thumb--office">
+                <i class="fas fa-chair" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pd-rel-card__body">
+              <span class="pd-rel-card__cat">사무용품</span>
+              <h3 class="pd-rel-card__name"><a href="/product/1005">메쉬 사무용 의자 (요추 지지형)</a></h3>
+              <div class="pd-rel-card__price-box">
+                <p class="pd-rel-card__price-original">₩320,000</p>
+                <p class="pd-rel-card__price-sale"><span class="pd-rel-card__price-label">회원할인가</span><strong>₩288,000</strong><span class="pd-rel-card__price-unit"> / 개</span></p>
+              </div>
+            </div>
+          </li>
+          <li class="pd-rel-card" th:if="${#lists.isEmpty(relatedProducts)}">
+            <a href="/product/1006" class="pd-rel-card__img-wrap">
+              <div class="pd-rel-card__thumb pd-rel-card__thumb--office">
+                <i class="fas fa-print" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pd-rel-card__body">
+              <span class="pd-rel-card__cat">디지털/가전</span>
+              <h3 class="pd-rel-card__name"><a href="/product/1006">레이저 복합기 (흑백, A4)</a></h3>
+              <div class="pd-rel-card__price-box">
+                <p class="pd-rel-card__price-original">₩418,000</p>
+                <p class="pd-rel-card__price-sale"><span class="pd-rel-card__price-label">회원할인가</span><strong>₩380,000</strong><span class="pd-rel-card__price-unit"> / 대</span></p>
+              </div>
+            </div>
+          </li>
+          <li class="pd-rel-card" th:if="${#lists.isEmpty(relatedProducts)}">
+            <a href="/product/1007" class="pd-rel-card__img-wrap">
+              <div class="pd-rel-card__thumb pd-rel-card__thumb--office">
+                <i class="fas fa-archive" aria-hidden="true"></i>
+              </div>
+            </a>
+            <div class="pd-rel-card__body">
+              <span class="pd-rel-card__cat">사무용품</span>
+              <h3 class="pd-rel-card__name"><a href="/product/1007">2단 서류 트레이 (A4용)</a></h3>
+              <div class="pd-rel-card__price-box">
+                <p class="pd-rel-card__price-original">₩16,000</p>
+                <p class="pd-rel-card__price-sale"><span class="pd-rel-card__price-label">회원할인가</span><strong>₩14,500</strong><span class="pd-rel-card__price-unit"> / 개</span></p>
+              </div>
+            </div>
+          </li>
+
+        </ul>
+      </div><!-- /.pd-carousel__track-wrap -->
+
+      <button type="button" class="pd-carousel__btn pd-carousel__btn--next" id="carouselNext"
+              aria-label="다음 상품">
+        <i class="fas fa-chevron-right" aria-hidden="true"></i>
+      </button>
+    </div><!-- /#relatedCarousel -->
+  </section>
+
+
+  <!-- ══════════════════════════════════════
+       SECTION 3: 상품 상세 이미지 영역
+       ══════════════════════════════════════ -->
+  <section class="pd-detail-images" aria-label="상품 상세 이미지">
+    <div class="pd-detail-images__header">
+      <h2 class="pd-detail-images__title">상품 상세</h2>
+    </div>
+
+    <!-- th:each="img : ${product.detailImages}" -->
+    <div class="pd-detail-images__body" id="detailImagesBody">
+
+      <!-- 더미: 실제 이미지 연동 전 플레이스홀더 반복 출력 -->
+      <div class="pd-img-block" th:each="img : ${product.detailImages}">
+        <img th:src="${img.url}" th:alt="${img.alt}" loading="lazy">
+      </div>
+
+      <!-- 더미 이미지 블록 (Thymeleaf 미적용 시) -->
+      <div class="pd-img-block pd-img-block--placeholder" th:if="${#lists.isEmpty(product.detailImages)}">
+        <span class="pd-img-block__label">이미지 영역</span>
+      </div>
+      <div class="pd-img-block pd-img-block--placeholder" th:if="${#lists.isEmpty(product.detailImages)}">
+        <span class="pd-img-block__label">이미지 영역</span>
+      </div>
+      <div class="pd-img-block pd-img-block--placeholder" th:if="${#lists.isEmpty(product.detailImages)}">
+        <span class="pd-img-block__label">이미지 영역</span>
+      </div>
+      <div class="pd-img-block pd-img-block--placeholder" th:if="${#lists.isEmpty(product.detailImages)}">
+        <span class="pd-img-block__label">이미지 영역</span>
+      </div>
+      <div class="pd-img-block pd-img-block--placeholder" th:if="${#lists.isEmpty(product.detailImages)}">
+        <span class="pd-img-block__label">이미지 영역</span>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+
+<!-- ════════════════════════════════════════
+     GLOBAL FOOTER
+     th:replace="fragments/layout :: footer"
+     ════════════════════════════════════════ -->
+<footer class="gf">
+  <div class="gf__inner">
+    <div class="gf__top">
+      <div class="gf__brand">
+        <div class="gf__logo-mark" aria-hidden="true">TH</div>
+        <div>
+          <p class="gf__brand-name">Goodee B2B</p>
+          <p class="gf__brand-sub">BtoB 기업 공급 플랫폼</p>
+        </div>
+      </div>
+      <nav class="gf__policy" aria-label="정책 메뉴">
+        <a href="/terms">이용약관</a>
+        <a href="/privacy" class="gf__policy--em">개인정보처리방침</a>
+        <a href="/guide">이용안내</a>
+        <a href="/partnership">제휴·입점</a>
+      </nav>
+    </div>
+    <div class="gf__info">
+      <p>
+        <strong>주식회사 트레이드허브</strong> &nbsp;|&nbsp;
+        대표이사: 홍길동 &nbsp;|&nbsp;
+        사업자등록번호: 123-45-67890 &nbsp;|&nbsp;
+        통신판매업: 제2024-서울강남-0001호
+      </p>
+      <p>
+        주소: 서울특별시 강남구 테헤란로 123, 트레이드허브빌딩 7층 &nbsp;|&nbsp;
+        대표번호: <a href="tel:15880000">1588-0000</a> &nbsp;|&nbsp;
+        이메일: <a href="mailto:biz@tradehub.co.kr">biz@tradehub.co.kr</a> &nbsp;|&nbsp;
+        운영: 평일 09:00–18:00
+      </p>
+    </div>
+    <p class="gf__copy">© 2024 Goodee B2B. All rights reserved.</p>
+  </div>
+</footer>
+
+<div class="quick-side" aria-label="고정 퀵메뉴">
+  <a href="/cs" th:href="@{/cs}" class="quick-side__item" aria-label="고객센터 바로가기">
+    <i class="fas fa-headset" aria-hidden="true"></i>
+    <span class="quick-side__text">
+      <strong>고객센터</strong>
+      <em>바로가기</em>
+    </span>
+  </a>
+  <a href="/cs-inquiry" th:href="@{/cs-inquiry}" class="quick-side__item" aria-label="1대1 문의">
+    <i class="fas fa-comment-dots" aria-hidden="true"></i>
+    <span class="quick-side__text">
+      <strong>1:1 문의</strong>
+      <em>빠른 접수</em>
+    </span>
+  </a>
+  <a href="/recent-products" th:href="@{/recent-products}" class="quick-side__recent" aria-label="최근 본 상품">
+    <span class="quick-side__recent-stack" aria-hidden="true">
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--1"><i class="fas fa-box" aria-hidden="true"></i></span>
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--2"><i class="fas fa-tag" aria-hidden="true"></i></span>
+      <span class="quick-side__recent-thumb quick-side__recent-thumb--3"><i class="fas fa-cube" aria-hidden="true"></i></span>
+    </span>
+    <span class="quick-side__recent-label">최근본상품</span>
+  </a>
+  <button type="button" class="quick-side__top" id="quickTopBtn" aria-label="최상단으로 이동">
+    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+    <span>최상단</span>
+  </button>
+</div>
+
+<!-- 장바구니 토스트 -->
+<div class="pd-toast" id="pdToast" role="alert" aria-live="polite" aria-atomic="true">
+  <i class="fas fa-check-circle" aria-hidden="true"></i>
+  <span class="pd-toast__msg">장바구니에 담았습니다.</span>
+  <a href="/cart" class="pd-toast__link">바로 보기</a>
+</div>
+
+<script src="product-detail.js" th:src="@{/js/product-detail.js}"></script>
+</body>
+</html>
