@@ -353,7 +353,36 @@ const state = {
   showTopButton: false,
 };
 
+function getVisibleProductCount() {
+  const cards = Array.from(document.querySelectorAll('#productGrid .pl-card'));
+  return cards.filter((card) => {
+    if (card.hidden) return false;
+    const style = window.getComputedStyle(card);
+    return style.display !== 'none' && style.visibility !== 'hidden';
+  }).length;
+}
+
+function getProductCountValue() {
+  const countEl = document.getElementById('productCountValue');
+  if (!countEl) return 0;
+
+  const rawCountText = String(countEl.dataset.totalCount || '').replace(/[^\d]/g, '');
+  const rawCount = rawCountText ? Number.parseInt(rawCountText, 10) : NaN;
+  if (Number.isFinite(rawCount) && rawCount >= 0) return rawCount;
+
+  return getVisibleProductCount();
+}
+
+function renderProductCount() {
+  const countEl = document.getElementById('productCountValue');
+  if (!countEl) return;
+
+  const value = Math.max(0, getProductCountValue());
+  countEl.textContent = value.toLocaleString('ko-KR');
+}
+
 function render() {
+  renderProductCount();
   renderViewToggle();
   renderActiveFilters();
   renderWishlistIcons();
@@ -379,7 +408,10 @@ function renderViewToggle() {
 
 function renderActiveFilters() {
   const container = document.getElementById('activeFilters');
-  if (!container) return;
+  if (!container) {
+    renderProductCount();
+    return;
+  }
 
   const tags = [];
 
@@ -415,6 +447,8 @@ function renderActiveFilters() {
       removeFilter(btn.dataset.key);
     });
   });
+
+  renderProductCount();
 }
 
 function renderWishlistIcons() {

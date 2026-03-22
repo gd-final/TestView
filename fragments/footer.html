@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <!-- 사용 예시: <div th:replace="fragments/footer :: footer"></div> -->
+  <th:block th:fragment="footer">
+    <footer class="gf">
+      <div class="gf__inner">
+        <div class="gf__top">
+          <div class="gf__brand">
+            <div class="gf__logo-mark" aria-hidden="true">TH</div>
+            <div>
+              <p class="gf__brand-name">Goodee B2B</p>
+              <p class="gf__brand-sub">BtoB 기업 공급 플랫폼</p>
+            </div>
+          </div>
+          <nav class="gf__policy" aria-label="정책 메뉴">
+            <a href="/terms" th:href="@{/terms}">이용약관</a>
+            <a href="/privacy" th:href="@{/privacy}" class="gf__policy--em">개인정보처리방침</a>
+            <a href="/guide" th:href="@{/guide}">이용안내</a>
+            <a href="/partnership" th:href="@{/partnership}">제휴·입점</a>
+          </nav>
+        </div>
+
+        <div class="gf__info">
+          <p>
+            <strong>주식회사 트레이드허브</strong> &nbsp;|&nbsp;
+            대표이사: 홍길동 &nbsp;|&nbsp;
+            사업자등록번호: 123-45-67890 &nbsp;|&nbsp;
+            통신판매업: 제2024-서울강남-0001호
+          </p>
+          <p>
+            주소: 서울특별시 강남구 테헤란로 123, 트레이드허브빌딩 7층 &nbsp;|&nbsp;
+            대표번호: <a href="tel:15880000">1588-0000</a> &nbsp;|&nbsp;
+            이메일: <a href="mailto:biz@tradehub.co.kr">biz@tradehub.co.kr</a> &nbsp;|&nbsp;
+            운영: 평일 09:00–18:00
+          </p>
+        </div>
+
+        <p class="gf__copy">© 2024 Goodee B2B. All rights reserved.</p>
+      </div>
+    </footer>
+  </th:block>
+</body>
+</html>

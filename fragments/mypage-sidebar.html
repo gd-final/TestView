@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+  <!-- 사용 예시: <aside th:replace="fragments/mypage-sidebar :: mypageSidebar"></aside> -->
+  <th:block th:fragment="mypageSidebar">
+    <aside class="mypage-nav" aria-label="마이페이지 메뉴">
+      <div class="mypage-nav__profile">
+        <div class="mypage-nav__avatar" aria-hidden="true">
+          <i class="fas fa-user-tie"></i>
+        </div>
+        <div class="mypage-nav__user">
+          <strong th:text="${member.companyName}">㈜한국무역상사</strong>
+          <span th:text="${member.name}">김담당</span>
+        </div>
+      </div>
+
+      <nav class="mypage-nav__menu" aria-label="마이페이지 세부 메뉴">
+        <div class="nav-group is-open" id="navGroup1">
+          <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="navGroup1Body">
+            <span class="nav-group__icon"><i class="fas fa-user-cog" aria-hidden="true"></i></span>
+            <span class="nav-group__label">개인정보 수정</span>
+            <i class="fas fa-chevron-down nav-group__arrow" aria-hidden="true"></i>
+          </button>
+          <ul class="nav-group__body" id="navGroup1Body" role="list">
+            <li><a href="/mypage/profile" th:href="@{/mypage/profile}" class="nav-group__item">회원정보</a></li>
+            <li><a href="/mypage/password" th:href="@{/mypage/password}" class="nav-group__item">비밀번호 변경</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-group is-open" id="navGroup2">
+          <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="navGroup2Body">
+            <span class="nav-group__icon"><i class="fas fa-file-invoice" aria-hidden="true"></i></span>
+            <span class="nav-group__label">주문/견적</span>
+            <i class="fas fa-chevron-down nav-group__arrow" aria-hidden="true"></i>
+          </button>
+          <ul class="nav-group__body" id="navGroup2Body" role="list">
+            <li><a href="/mypage/quotes" th:href="@{/mypage/quotes}" class="nav-group__item">견적서 상세</a></li>
+            <li><a href="/mypage/orders" th:href="@{/mypage/orders}" class="nav-group__item">주문서 상세</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-group is-open" id="navGroup3">
+          <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="navGroup3Body">
+            <span class="nav-group__icon"><i class="fas fa-box-open" aria-hidden="true"></i></span>
+            <span class="nav-group__label">상품</span>
+            <i class="fas fa-chevron-down nav-group__arrow" aria-hidden="true"></i>
+          </button>
+          <ul class="nav-group__body" id="navGroup3Body" role="list">
+            <li>
+              <a href="/cart" th:href="@{/cart}" class="nav-group__item is-active" aria-current="page">
+                장바구니 목록
+                <em class="nav-group__badge" th:text="${cartCount}">8</em>
+              </a>
+            </li>
+            <li><a href="/mypage/wishlist" th:href="@{/mypage/wishlist}" class="nav-group__item">찜 목록</a></li>
+          </ul>
+        </div>
+
+        <div class="nav-group is-open" id="navGroup4">
+          <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="navGroup4Body">
+            <span class="nav-group__icon"><i class="fas fa-shipping-fast" aria-hidden="true"></i></span>
+            <span class="nav-group__label">배송</span>
+            <i class="fas fa-chevron-down nav-group__arrow" aria-hidden="true"></i>
+          </button>
+          <ul class="nav-group__body" id="navGroup4Body" role="list">
+            <li><a href="/delivery" th:href="@{/delivery}" class="nav-group__item">배송 조회</a></li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+  </th:block>
+</body>
+</html>

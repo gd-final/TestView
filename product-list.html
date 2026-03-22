@@ -162,9 +162,6 @@
   <div class="page-title-row">
     <div>
       <h1 class="page-title" th:text="${categoryName + ' 상품 목록'}">사무용품 상품 목록</h1>
-      <p class="page-title-sub">
-        총 <strong th:text="${#numbers.formatInteger(totalCount, 3, 'COMMA')}">1,248</strong>개 상품
-      </p>
     </div>
   </div>
 
@@ -259,9 +256,10 @@
       <!-- 상단 툴바: 정렬 + 뷰 전환 -->
       <div class="pl-toolbar">
         <div class="pl-toolbar__left">
-          <p class="pl-toolbar__count">
-            <span>총 개수:</span>
-            <em th:text="${#numbers.formatInteger(totalCount, 3, 'COMMA')}">234</em>
+          <p class="pl-toolbar__count" aria-live="polite">
+            총 <em id="productCountValue"
+                   th:text="${#numbers.formatInteger(totalCount, 3, 'COMMA')}"
+                   th:attr="data-total-count=${totalCount}">0</em> 개의 상품이 있습니다.
           </p>
           <!-- 활성 필터 태그 -->
           <div class="pl-active-filters" id="activeFilters" role="list" aria-label="적용된 필터">

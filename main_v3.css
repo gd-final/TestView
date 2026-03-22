@@ -1326,13 +1326,38 @@ input, select { font-family: inherit; }
 }
 
 .cat-tree-root__link::after {
-  content: '>';
-  color: var(--p-blue);
-  font-size: 12px;
-  font-weight: 900;
+  content: none;
 }
 
 .cat-tree-root__link:hover {
+  color: var(--p-blue);
+}
+
+.cat-tree-root__quick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+}
+
+.cat-tree-root__quick-item {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--pill);
+  background: var(--p-surface);
+  color: var(--p-sub);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: var(--t);
+}
+
+.cat-tree-root__quick-item:hover {
+  border-color: #bfdbfe;
+  background: #dbeeff;
   color: var(--p-blue);
 }
 
@@ -1735,6 +1760,7 @@ input, select { font-family: inherit; }
    V3: 정적 5열 리스트, 카드에 상단 컬러 바 부착
    ============================================== */
 .catalog-section { padding-bottom: 4px; }
+.catalog-section--best100 { margin-bottom: 28px; }
 
 .catalog-wrap {
   background: var(--p-white);
@@ -1764,6 +1790,13 @@ input, select { font-family: inherit; }
   flex-wrap: wrap;
 }
 .catalog-title {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--pill);
+  background: var(--p-surface);
   font-size: 18px;
   font-weight: 800;
   color: var(--p-text);
@@ -1971,6 +2004,20 @@ input, select { font-family: inherit; }
   background: var(--p-ink);
   color: var(--p-white);
   border-color: var(--p-ink);
+}
+.cg-card__wish-btn i {
+  pointer-events: none;
+  transition: color var(--t);
+}
+.cg-card__wish-btn.is-active {
+  color: var(--p-red);
+  border-color: rgba(224, 72, 95, 0.4);
+  background: #fff4f6;
+}
+.cg-card__wish-btn.is-active:hover {
+  color: var(--p-red);
+  border-color: rgba(224, 72, 95, 0.65);
+  background: #ffebef;
 }
 .cg-btn--primary {
   background: var(--p-blue);

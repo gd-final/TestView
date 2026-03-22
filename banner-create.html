@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>찜 목록 — Goodee B2B</title>
+  <title>배너 등록 - Goodee B2B</title>
   <link rel="stylesheet" href="v3-common.css" th:href="@{/css/v3-common.css}">
   <link rel="stylesheet" href="wishList.css" th:href="@{/css/wishList.css}">
+  <link rel="stylesheet" href="banner-admin.css" th:href="@{/css/banner-admin.css}">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
@@ -154,18 +155,18 @@
     </div>
   </div>
 
-  <main class="page-content wish-page">
+  <main class="page-content wish-page banner-page">
     <nav class="breadcrumb" aria-label="현재 위치">
       <ol class="breadcrumb__list">
         <li><a href="/" th:href="@{/}">홈</a></li>
         <li><a href="/mypage" th:href="@{/mypage}">마이페이지</a></li>
-        <li aria-current="page">찜 목록</li>
+        <li aria-current="page">배너 관리</li>
       </ol>
     </nav>
 
     <div class="page-title-row">
-      <h1 class="page-title">마이페이지</h1>
-      <p class="page-title-sub">주문·배송·상품 관리를 한 곳에서 확인하세요.</p>
+      <h1 class="page-title">배너 관리</h1>
+      <p class="page-title-sub">배너 노출 상태와 순서를 한 곳에서 관리하세요.</p>
     </div>
 
     <div class="mypage-layout">
@@ -180,206 +181,81 @@
           </div>
         </div>
 
-        <nav class="mypage-nav__menu" aria-label="마이페이지 세부 메뉴">
-          <div class="nav-group is-open" id="wishNavGroup1">
-            <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="wishNavGroup1Body">
-              <span class="nav-group__icon"><i class="fas fa-user-cog" aria-hidden="true"></i></span>
-              <span class="nav-group__label">개인정보 수정</span>
+                <nav class="mypage-nav__menu" aria-label="마이페이지 세부 메뉴">
+          <div class="nav-group is-open" id="bannerNavGroup">
+            <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="bannerNavGroupBody">
+              <span class="nav-group__icon"><i class="fas fa-images" aria-hidden="true"></i></span>
+              <span class="nav-group__label">배너 관리</span>
               <i class="fas fa-chevron-down nav-group__arrow" aria-hidden="true"></i>
             </button>
-            <ul class="nav-group__body" id="wishNavGroup1Body" role="list">
-              <li><a href="/mypage/profile" th:href="@{/mypage/profile}" class="nav-group__item">회원정보</a></li>
-              <li><a href="/mypage/password" th:href="@{/mypage/password}" class="nav-group__item">비밀번호 변경</a></li>
-            </ul>
-          </div>
-
-          <div class="nav-group is-open" id="wishNavGroup2">
-            <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="wishNavGroup2Body">
-              <span class="nav-group__icon"><i class="fas fa-file-invoice" aria-hidden="true"></i></span>
-              <span class="nav-group__label">주문/견적</span>
-              <i class="fas fa-chevron-down nav-group__arrow" aria-hidden="true"></i>
-            </button>
-            <ul class="nav-group__body" id="wishNavGroup2Body" role="list">
-              <li><a href="/mypage/quotes" th:href="@{/mypage/quotes}" class="nav-group__item">견적서 상세</a></li>
-              <li><a href="/mypage/orders" th:href="@{/mypage/orders}" class="nav-group__item">주문서 상세</a></li>
-            </ul>
-          </div>
-
-          <div class="nav-group is-open" id="wishNavGroup3">
-            <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="wishNavGroup3Body">
-              <span class="nav-group__icon"><i class="fas fa-box-open" aria-hidden="true"></i></span>
-              <span class="nav-group__label">상품</span>
-              <i class="fas fa-chevron-down nav-group__arrow" aria-hidden="true"></i>
-            </button>
-            <ul class="nav-group__body" id="wishNavGroup3Body" role="list">
-              <li>
-                <a href="/cart" th:href="@{/cart}" class="nav-group__item">
-                  장바구니 목록
-                  <em class="nav-group__badge" th:text="${cartCount}">8</em>
-                </a>
-              </li>
-              <li><a href="/mypage/wishlist" th:href="@{/mypage/wishlist}" class="nav-group__item is-active" aria-current="page">찜 목록</a></li>
-            </ul>
-          </div>
-
-          <div class="nav-group is-open" id="wishNavGroup4">
-            <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="wishNavGroup4Body">
-              <span class="nav-group__icon"><i class="fas fa-shipping-fast" aria-hidden="true"></i></span>
-              <span class="nav-group__label">배송</span>
-              <i class="fas fa-chevron-down nav-group__arrow" aria-hidden="true"></i>
-            </button>
-            <ul class="nav-group__body" id="wishNavGroup4Body" role="list">
-              <li><a href="/delivery" th:href="@{/delivery}" class="nav-group__item">배송 조회</a></li>
+            <ul class="nav-group__body" id="bannerNavGroupBody" role="list">
+              <li><a href="banner-list.html" class="nav-group__item">배너 목록 조회</a></li>
+              <li><a href="banner-create.html" class="nav-group__item is-active" aria-current="page">배너 등록</a></li>
+              <li><a href="banner-update.html" class="nav-group__item">배너 수정</a></li>
+              <li><a href="banner-delete.html" class="nav-group__item">배너 삭제</a></li>
+              <li><a href="banner-sort.html" class="nav-group__item">배너 순서관리</a></li>
             </ul>
           </div>
         </nav>
       </aside>
 
-      <div class="wish-area">
+            <div class="banner-area">
         <div class="wish-header">
           <div class="wish-header__left">
-            <h2 class="wish-header__title">찜 목록</h2>
-            <span class="wish-header__count">총 <strong id="wishTotalCount">4</strong>개 상품</span>
+            <h2 class="wish-header__title">배너 관리</h2>
+            <span class="wish-header__count">운영 배너 설정</span>
           </div>
-          <div class="wish-header__actions">
-            <button type="button" class="btn-ghost" id="wishClearBtn">전체 삭제</button>
+          <div class="wish-header__actions banner-nav-links">
+            <a href="banner-list.html" class="btn-ghost">목록</a>
+            <a href="banner-create.html" class="btn-ghost">등록</a>
+            <a href="banner-update.html" class="btn-ghost">수정</a>
+            <a href="banner-sort.html" class="btn-ghost">순서</a>
+            <a href="banner-delete.html" class="btn-ghost">삭제</a>
           </div>
         </div>
-
-        <section class="panel wish-panel" aria-labelledby="wishPanelTitle">
+        <section class="panel banner-panel" aria-labelledby="bannerCreateTitle">
           <div class="panel__header">
             <div>
-              <h2 class="panel__title" id="wishPanelTitle">찜한 상품</h2>
-              <p class="wish-panel__sub">찜 상태를 다시 누르면 목록에서 바로 제거됩니다.</p>
+              <h2 class="panel__title" id="bannerCreateTitle">배너 등록</h2>
+              <p class="banner-panel__sub">신규 배너를 등록하고 노출 조건을 설정합니다.</p>
             </div>
-            <span class="wish-panel__status" id="wishStatusText">현재 4개 상품이 저장되어 있습니다.</span>
+            <a href="banner-list.html" class="btn-secondary">목록으로</a>
           </div>
 
-          <div class="wish-grid" id="wishGrid">
-        <article class="wish-card" data-wish-item data-id="wish-1">
-          <button type="button" class="wish-card__wish-btn is-active" aria-label="찜 해제">
-            <i class="fas fa-heart" aria-hidden="true"></i>
-          </button>
-          <a href="/product-list" th:href="@{/product-list}" class="wish-card__thumb wish-card__thumb--paper" aria-label="A4 복사용지 상품 보기">
-            <i class="fas fa-copy" aria-hidden="true"></i>
-          </a>
-          <div class="wish-card__body">
-            <p class="wish-card__cat">사무용품</p>
-            <a href="/product-list" th:href="@{/product-list}" class="wish-card__name">A4 복사용지 80g 2500매</a>
-            <p class="wish-card__desc">대량 인쇄와 사내 문서 출력용으로 많이 찾는 기본 규격입니다.</p>
-            <ul class="wish-card__meta">
-              <li><span>최소주문</span><strong>5박스</strong></li>
-              <li><span>출고일정</span><strong>D+1</strong></li>
-            </ul>
-            <div class="wish-card__price-row">
-              <span class="wish-card__price-label">회원할인가</span>
-              <strong class="wish-card__price">₩18,900</strong>
-              <s class="wish-card__price-origin">₩21,000</s>
-              <span class="wish-card__unit">/박스</span>
+          <form class="banner-form" action="#" method="post">
+            <div class="banner-form-grid">
+              <label class="banner-field">
+                <span class="banner-field__label">배너명</span>
+                <input type="text" name="name" placeholder="예: 봄 시즌 특가" required>
+              </label>
+              <label class="banner-field">
+                <span class="banner-field__label">링크 URL</span>
+                <input type="url" name="linkUrl" placeholder="https://example.com/event">
+              </label>
+              <label class="banner-field banner-field--full">
+                <span class="banner-field__label">이미지 URL</span>
+                <input type="url" name="imageUrl" placeholder="https://cdn.example.com/banner.jpg" required>
+              </label>
+              <label class="banner-field">
+                <span class="banner-field__label">노출 시작일</span>
+                <input type="date" name="startDate" required>
+              </label>
+              <label class="banner-field">
+                <span class="banner-field__label">노출 종료일</span>
+                <input type="date" name="endDate" required>
+              </label>
+              <label class="banner-field banner-field--full">
+                <span class="banner-field__label">설명</span>
+                <textarea name="description" rows="4" placeholder="배너 설명 또는 내부 관리 메모"></textarea>
+              </label>
             </div>
-          </div>
-          <div class="wish-card__foot">
-            <button type="button" class="btn-ghost wish-card__cart-btn">장바구니 담기</button>
-          </div>
-        </article>
-
-        <article class="wish-card" data-wish-item data-id="wish-2">
-          <button type="button" class="wish-card__wish-btn is-active" aria-label="찜 해제">
-            <i class="fas fa-heart" aria-hidden="true"></i>
-          </button>
-          <a href="/product-list" th:href="@{/product-list}" class="wish-card__thumb wish-card__thumb--tumbler" aria-label="텀블러 상품 보기">
-            <i class="fas fa-mug-hot" aria-hidden="true"></i>
-          </a>
-          <div class="wish-card__body">
-            <p class="wish-card__cat">판촉물</p>
-            <a href="/product-list" th:href="@{/product-list}" class="wish-card__name">스테인리스 텀블러 500ml</a>
-            <p class="wish-card__desc">기업 로고 인쇄에 적합한 사내 증정용 베스트 규격입니다.</p>
-            <ul class="wish-card__meta">
-              <li><span>최소주문</span><strong>100개</strong></li>
-              <li><span>납품일정</span><strong>D+5</strong></li>
-            </ul>
-            <div class="wish-card__price-row">
-              <span class="wish-card__price-label">회원할인가</span>
-              <strong class="wish-card__price">₩4,800</strong>
-              <s class="wish-card__price-origin">₩5,300</s>
-              <span class="wish-card__unit">/개</span>
+            <div class="banner-form__actions">
+              <button type="submit" class="btn-primary">등록 완료</button>
+              <a href="banner-list.html" class="btn-ghost">취소</a>
             </div>
-          </div>
-          <div class="wish-card__foot">
-            <button type="button" class="btn-ghost wish-card__cart-btn">장바구니 담기</button>
-          </div>
-        </article>
-
-        <article class="wish-card" data-wish-item data-id="wish-3">
-          <button type="button" class="wish-card__wish-btn is-active" aria-label="찜 해제">
-            <i class="fas fa-heart" aria-hidden="true"></i>
-          </button>
-          <a href="/product-list" th:href="@{/product-list}" class="wish-card__thumb wish-card__thumb--box" aria-label="택배 박스 상품 보기">
-            <i class="fas fa-box" aria-hidden="true"></i>
-          </a>
-          <div class="wish-card__body">
-            <p class="wish-card__cat">포장/배송</p>
-            <a href="/product-list" th:href="@{/product-list}" class="wish-card__name">택배 박스 4호 50매입</a>
-            <p class="wish-card__desc">전자상거래 출고에 많이 쓰는 규격으로 완충재와 함께 구성하기 좋습니다.</p>
-            <ul class="wish-card__meta">
-              <li><span>최소주문</span><strong>2묶음</strong></li>
-              <li><span>출고일정</span><strong>D+1</strong></li>
-            </ul>
-            <div class="wish-card__price-row">
-              <span class="wish-card__price-label">회원할인가</span>
-              <strong class="wish-card__price">₩16,500</strong>
-              <s class="wish-card__price-origin">₩18,200</s>
-              <span class="wish-card__unit">/묶음</span>
-            </div>
-          </div>
-          <div class="wish-card__foot">
-            <button type="button" class="btn-ghost wish-card__cart-btn">장바구니 담기</button>
-          </div>
-        </article>
-
-        <article class="wish-card" data-wish-item data-id="wish-4">
-          <button type="button" class="wish-card__wish-btn is-active" aria-label="찜 해제">
-            <i class="fas fa-heart" aria-hidden="true"></i>
-          </button>
-          <a href="/product-list" th:href="@{/product-list}" class="wish-card__thumb wish-card__thumb--clean" aria-label="손 소독제 상품 보기">
-            <i class="fas fa-pump-soap" aria-hidden="true"></i>
-          </a>
-          <div class="wish-card__body">
-            <p class="wish-card__cat">청소/위생</p>
-            <a href="/product-list" th:href="@{/product-list}" class="wish-card__name">손 소독제 500ml 24입</a>
-            <p class="wish-card__desc">사무실 입구와 탕비실 비치용으로 꾸준히 찾는 위생 관리 소모품입니다.</p>
-            <ul class="wish-card__meta">
-              <li><span>최소주문</span><strong>1박스</strong></li>
-              <li><span>출고일정</span><strong>D+1</strong></li>
-            </ul>
-            <div class="wish-card__price-row">
-              <span class="wish-card__price-label">회원할인가</span>
-              <strong class="wish-card__price">₩42,000</strong>
-              <s class="wish-card__price-origin">₩46,000</s>
-              <span class="wish-card__unit">/박스</span>
-            </div>
-          </div>
-          <div class="wish-card__foot">
-            <button type="button" class="btn-ghost wish-card__cart-btn">장바구니 담기</button>
-          </div>
-        </article>
-          </div>
+          </form>
         </section>
       </div>
-    </div>
-
-    <div class="wish-thymeleaf-proto" hidden aria-hidden="true">
-      <article class="wish-card" th:each="item : ${wishList}">
-        <a th:href="@{/product-list}" class="wish-card__thumb">
-          <img th:src="${item.imageUrl}" th:alt="${item.name}">
-        </a>
-        <div class="wish-card__body">
-          <p class="wish-card__cat" th:text="${item.categoryName}">카테고리</p>
-          <a th:href="@{/product-list}" class="wish-card__name" th:text="${item.name}">상품명</a>
-          <p class="wish-card__desc" th:text="${item.summary}">상품 요약</p>
-        </div>
-      </article>
-    </div>
   </main>
 
   <!-- th:replace="fragments/layout :: footer" -->

@@ -32,6 +32,12 @@ const state = {
     perPage:  5,         // 페이지당 카드 수
     total:    0,         // 전체 카드 수 (DOM에서 읽음)
   },
+  bestCatalog: {
+    page: 0,
+    perPage: 5,
+    total: 0,
+  },
+  wishlist: new Set(),
   catDropdown: {
     open: false,
     activeKey: 'all',
@@ -388,6 +394,8 @@ const ACTION = {
   BANNER_TOGGLE:  'BANNER_TOGGLE',
   CATALOG_NEXT:   'CATALOG_NEXT',
   CATALOG_PREV:   'CATALOG_PREV',
+  BEST_CATALOG_NEXT: 'BEST_CATALOG_NEXT',
+  BEST_CATALOG_PREV: 'BEST_CATALOG_PREV',
   CAT_OPEN:       'CAT_OPEN',
   CAT_SET_GROUP:  'CAT_SET_GROUP',
   CAT_SET_SUB:    'CAT_SET_SUB',
@@ -443,13 +451,22 @@ function dispatch(action, payload) {
       break;
 
     case ACTION.CATALOG_NEXT: {
-      const maxPage = Math.ceil(state.catalog.total / state.catalog.perPage) - 1;
-      state.catalog.page = Math.min(state.catalog.page + 1, maxPage);
+      moveCatalogPage(state.catalog, 1);
       renderCatalog();
       break;
     }
     case ACTION.CATALOG_PREV:
-      state.catalog.page = Math.max(state.catalog.page - 1, 0);
+      moveCatalogPage(state.catalog, -1);
+      renderCatalog();
+      break;
+
+    case ACTION.BEST_CATALOG_NEXT:
+      moveCatalogPage(state.bestCatalog, 1);
+      renderCatalog();
+      break;
+
+    case ACTION.BEST_CATALOG_PREV:
+      moveCatalogPage(state.bestCatalog, -1);
       renderCatalog();
       break;
 
@@ -591,50 +608,131 @@ function dispatch(action, payload) {
 function renderBanner() {
   const idx = state.banner.current;
 
-  // 탭 활성화
   document.querySelectorAll('.promo-tab').forEach((tab) => {
     const isActive = Number(tab.dataset.idx) === idx;
     tab.classList.toggle('is-active', isActive);
     tab.setAttribute('aria-selected', String(isActive));
   });
 
-  // 패널 활성화
   document.querySelectorAll('.promo-pane').forEach((pane, i) => {
     pane.classList.toggle('is-active', i === idx);
   });
 
-  // 진행 바 리셋
   resetProgressBar();
 }
-
 /**
  * 카탈로그 페이지 렌더
  * V3: data-page 속성 기반으로 카드 show/hide
  */
-function renderCatalog() {
-  const { page, perPage } = state.catalog;
-  const cards = document.querySelectorAll('.cg-card');
+const CATALOG_DOM_IDS = {
+  recommend: {
+    gridId: 'v3CatalogGrid',
+    prevId: 'v3CatPrev',
+    nextId: 'v3CatNext',
+    pageInfoId: 'v3PageInfo',
+  },
+  best: {
+    gridId: 'v3BestCatalogGrid',
+    prevId: 'v3BestPrev',
+    nextId: 'v3BestNext',
+    pageInfoId: 'v3BestPageInfo',
+  },
+};
 
+function moveCatalogPage(catalogState, step) {
+  const maxPage = Math.max(Math.ceil(catalogState.total / catalogState.perPage) - 1, 0);
+  catalogState.page = clamp(catalogState.page + step, 0, maxPage);
+}
+
+function renderCatalogSection(catalogState, domIds) {
+  const { page, perPage } = catalogState;
+  const grid = document.getElementById(domIds.gridId);
+  if (!grid) return;
+
+  const cards = grid.querySelectorAll('.cg-card');
   cards.forEach((card) => {
     const cardPage = Math.floor(Number(card.dataset.page || 0));
     card.style.display = cardPage === page ? '' : 'none';
   });
 
-  // 페이지 정보 업데이트
-  const total     = Math.ceil(state.catalog.total / perPage);
-  const infoEl    = document.getElementById('v3PageInfo');
-  if (infoEl) infoEl.textContent = `${page + 1} / ${Math.max(1, total)}`;
+  const totalPages = Math.max(1, Math.ceil(catalogState.total / perPage));
+  const infoEl = document.getElementById(domIds.pageInfoId);
+  if (infoEl) infoEl.textContent = `${page + 1} / ${totalPages}`;
 
-  // 버튼 비활성화
-  const prevBtn = document.getElementById('v3CatPrev');
-  const nextBtn = document.getElementById('v3CatNext');
+  const prevBtn = document.getElementById(domIds.prevId);
+  const nextBtn = document.getElementById(domIds.nextId);
   if (prevBtn) prevBtn.disabled = page <= 0;
-  if (nextBtn) nextBtn.disabled = page >= total - 1;
+  if (nextBtn) nextBtn.disabled = page >= totalPages - 1;
+}
+
+function renderCatalog() {
+  renderCatalogSection(state.bestCatalog, CATALOG_DOM_IDS.best);
+  renderCatalogSection(state.catalog, CATALOG_DOM_IDS.recommend);
 }
 
 /**
  * 카테고리 드롭다운 렌더
  */
+function resolveCatalogWishId(card, index) {
+  const explicitId = card.dataset.id || card.dataset.productId;
+  if (explicitId) return explicitId;
+
+  const productLink = card.querySelector('.cg-card__link')?.getAttribute('href') || '';
+  const linkMatch = productLink.match(/\/product\/([^/?#]+)/);
+  if (linkMatch?.[1]) return linkMatch[1];
+
+  return `catalog-${index + 1}`;
+}
+
+function ensureCatalogWishlistButtons() {
+  const cards = document.querySelectorAll('#v3CatalogGrid .cg-card, #v3BestCatalogGrid .cg-card');
+  cards.forEach((card, index) => {
+    const foot = card.querySelector('.cg-card__foot');
+    if (!foot) return;
+
+    let cartBtn = foot.querySelector('.cg-card__cart-btn');
+    if (!cartBtn) {
+      cartBtn = foot.querySelector('.cg-btn--ghost:not(.cg-card__wish-btn)');
+      if (cartBtn) cartBtn.classList.add('cg-card__cart-btn');
+    }
+    if (!cartBtn) return;
+
+    if (!cartBtn.hasAttribute('type')) {
+      cartBtn.type = 'button';
+    }
+
+    let wishBtn = foot.querySelector('.cg-card__wish-btn');
+    if (!wishBtn) {
+      wishBtn = document.createElement('button');
+      wishBtn.type = 'button';
+      wishBtn.className = 'cg-btn cg-btn--ghost cg-card__wish-btn';
+      wishBtn.innerHTML = '<i class="far fa-heart" aria-hidden="true"></i>';
+      foot.insertBefore(wishBtn, cartBtn);
+    }
+
+    wishBtn.dataset.id = resolveCatalogWishId(card, index);
+    wishBtn.setAttribute('aria-label', '관심 상품 등록');
+  });
+
+  renderCatalogWishlistIcons();
+}
+
+function renderCatalogWishlistIcons() {
+  document.querySelectorAll('.cg-card__wish-btn').forEach((btn) => {
+    const id = btn.dataset.id;
+    const isWished = state.wishlist.has(id);
+    const icon = btn.querySelector('i');
+
+    if (icon) {
+      icon.className = isWished ? 'fas fa-heart' : 'far fa-heart';
+      icon.style.color = isWished ? 'var(--p-red)' : '';
+    }
+
+    btn.classList.toggle('is-active', isWished);
+    btn.setAttribute('aria-label', isWished ? '관심 상품 해제' : '관심 상품 등록');
+  });
+}
+
 function renderCatDropdown() {
   const panel = document.getElementById('v3CatMega');
   const tree = document.getElementById('v3CatMegaTree');
@@ -658,6 +756,10 @@ function renderCatDropdown() {
       <a href="${escapeAttr(data.url)}" class="cat-tree-root__link">
         <span class="cat-tree-root__label">${escapeHtml(data.title)}</span>
       </a>
+      <div class="cat-tree-root__quick" aria-label="메인 상품 바로가기">
+        <a href="#v3BestCatalogGrid" class="cat-tree-root__quick-item">BEST 100</a>
+        <a href="#v3CatalogGrid" class="cat-tree-root__quick-item">추천 상품</a>
+      </div>
     </div>
     <div class="cat-tree-browser">
       <div class="cat-tree-majors">
@@ -927,6 +1029,30 @@ function bindEvents() {
   });
   document.getElementById('v3CatNext')?.addEventListener('click', () => {
     dispatch(ACTION.CATALOG_NEXT);
+  });
+  document.getElementById('v3BestPrev')?.addEventListener('click', () => {
+    dispatch(ACTION.BEST_CATALOG_PREV);
+  });
+  document.getElementById('v3BestNext')?.addEventListener('click', () => {
+    dispatch(ACTION.BEST_CATALOG_NEXT);
+  });
+
+  ['v3CatalogGrid', 'v3BestCatalogGrid'].forEach((gridId) => {
+    const catalogGrid = document.getElementById(gridId);
+    catalogGrid?.addEventListener('click', (e) => {
+      const wishBtn = e.target.closest('.cg-card__wish-btn');
+      if (!wishBtn) return;
+
+      const id = wishBtn.dataset.id;
+      if (!id) return;
+
+      if (state.wishlist.has(id)) {
+        state.wishlist.delete(id);
+      } else {
+        state.wishlist.add(id);
+      }
+      renderCatalogWishlistIcons();
+    });
   });
 
   const catStrip = document.querySelector('.cat-strip');
@@ -1201,22 +1327,78 @@ function bindQuickMenu() {
   syncQuickMenu();
 }
 
+function injectBestCatalogSection() {
+  const recommendSection = document.querySelector('.catalog-section');
+  if (!recommendSection || document.getElementById(CATALOG_DOM_IDS.best.gridId)) return;
+
+  const bestSection = recommendSection.cloneNode(true);
+  bestSection.classList.add('catalog-section--best100');
+  const bestTitle = bestSection.querySelector('.catalog-title');
+  if (bestTitle) bestTitle.textContent = 'BEST 100';
+
+  const bestControls = bestSection.querySelector('.catalog-header__controls');
+  if (bestControls) bestControls.setAttribute('aria-label', 'BEST 100 페이지 이동');
+
+  const bestSub = bestSection.querySelector('.catalog-sub');
+  if (bestSub) bestSub.textContent = '지금 가장 많이 찾는 인기 상품을 모아봤어요';
+
+  const bestPrev = bestSection.querySelector(`#${CATALOG_DOM_IDS.recommend.prevId}`);
+  if (bestPrev) {
+    bestPrev.id = CATALOG_DOM_IDS.best.prevId;
+    bestPrev.disabled = true;
+  }
+
+  const bestNext = bestSection.querySelector(`#${CATALOG_DOM_IDS.recommend.nextId}`);
+  if (bestNext) {
+    bestNext.id = CATALOG_DOM_IDS.best.nextId;
+    bestNext.disabled = true;
+  }
+
+  const bestPageInfo = bestSection.querySelector(`#${CATALOG_DOM_IDS.recommend.pageInfoId}`);
+  if (bestPageInfo) {
+    bestPageInfo.id = CATALOG_DOM_IDS.best.pageInfoId;
+    bestPageInfo.textContent = '1 / 1';
+  }
+
+  const bestGrid = bestSection.querySelector(`#${CATALOG_DOM_IDS.recommend.gridId}`);
+  if (bestGrid) bestGrid.id = CATALOG_DOM_IDS.best.gridId;
+
+  recommendSection.parentNode?.insertBefore(bestSection, recommendSection);
+}
+
+function initCatalogPages(catalogState, domIds) {
+  const grid = document.getElementById(domIds.gridId);
+  if (!grid) {
+    catalogState.total = 0;
+    catalogState.page = 0;
+    return;
+  }
+
+  const cards = grid.querySelectorAll('.cg-card');
+  catalogState.total = cards.length;
+  cards.forEach((card, i) => {
+    card.dataset.page = Math.floor(i / catalogState.perPage);
+  });
+
+  const maxPage = Math.max(Math.ceil(catalogState.total / catalogState.perPage) - 1, 0);
+  catalogState.page = clamp(catalogState.page, 0, maxPage);
+}
+
 
 /* ==============================================
    초기화
    V3 특징: 모든 상태를 먼저 계산 후 일괄 렌더
    ============================================== */
 function init() {
+  injectBestCatalogSection();
+  initCatalogPages(state.bestCatalog, CATALOG_DOM_IDS.best);
   /* 카탈로그 카드 수 계산 */
-  const allCards = document.querySelectorAll('.cg-card');
-  state.catalog.total = allCards.length;
+  initCatalogPages(state.catalog, CATALOG_DOM_IDS.recommend);
 
   /* 카드에 data-page 자동 할당 */
-  allCards.forEach((card, i) => {
-    card.dataset.page = Math.floor(i / state.catalog.perPage);
-  });
 
   /* 이벤트 바인딩 */
+  ensureCatalogWishlistButtons();
   bindEvents();
 
   /* 초기 렌더 */

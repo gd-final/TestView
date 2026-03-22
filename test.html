@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fragment Test - Goodee B2B</title>
+
+  <!-- 경로 변경 시 수정: css 폴더 이동/이름 변경 시 아래 href 경로를 함께 수정하세요. -->
+  <link rel="stylesheet" href="css/header.css" th:href="@{/css/header.css}">
+  <link rel="stylesheet" href="css/footer.css" th:href="@{/css/footer.css}">
+  <link rel="stylesheet" href="css/quick.css" th:href="@{/css/quick.css}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- 경로 변경 시 수정: fragments 폴더/파일명 변경 시 th:replace 경로를 함께 수정하세요. -->
+  <div th:replace="fragments/header :: header"></div>
+
+  <main style="max-width:1320px; margin:0 auto; padding:24px; min-height:1200px;">
+    <h1 style="font-size:28px; margin-bottom:12px;">Fragment 연결 테스트</h1>
+    <p style="color:#4a5568;">header/footer/quick CSS, JS 연결 상태 확인용 페이지입니다.</p>
+    <div style="height:900px;"></div>
+  </main>
+
+  <div th:replace="fragments/footer :: footer"></div>
+  <div th:replace="fragments/quick :: quick"></div>
+
+  <!-- 경로 변경 시 수정: js 폴더 이동/이름 변경 시 아래 src 경로를 함께 수정하세요. -->
+  <script src="js/header.js" th:src="@{/js/header.js}"></script>
+  <script src="js/footer.js" th:src="@{/js/footer.js}"></script>
+  <script src="js/quick.js" th:src="@{/js/quick.js}"></script>
+</body>
+</html>
