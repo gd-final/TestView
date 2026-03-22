@@ -615,6 +615,161 @@
   </section>
 </div>
 
+<div class="pd-quote-modal" id="quoteModal" aria-hidden="true">
+  <div class="pd-quote-modal__backdrop"></div>
+  <section class="pd-quote-modal__dialog" role="dialog" aria-modal="true" aria-label="견적서 작성 모달">
+    <div class="pd-quote-modal__body">
+      <div class="pd-quote-sheet">
+        <header class="pd-quote-sheet__top">
+          <strong class="pd-quote-sheet__top-title">온라인 견적서</strong>
+          <button type="button" class="pd-quote-modal__close" id="quoteModalCloseBtn" aria-label="견적서 모달 닫기">
+            <i class="fas fa-times" aria-hidden="true"></i>
+          </button>
+        </header>
+
+        <div class="pd-quote-sheet__paper">
+          <div class="pd-quote-sheet__doc-head">
+            <h3 class="pd-quote-sheet__doc-title">견적서</h3>
+            <div class="pd-quote-sheet__brand">
+              <strong>Goodee B2B</strong>
+              <span>기업 전용 공급 플랫폼</span>
+            </div>
+          </div>
+
+          <div class="pd-quote-sheet__summary">
+            <section class="pd-quote-sheet__request" aria-label="견적 요청 정보">
+              <p class="pd-quote-sheet__request-text">아래와 같이 견적합니다.</p>
+              <table class="pd-quote-mini-table">
+                <tbody>
+                  <tr>
+                    <th scope="row">기업명</th>
+                    <td><input type="text" placeholder="기업명을 입력해주세요."></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">담당자</th>
+                    <td><input type="text" placeholder="담당자명을 입력해주세요."></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">이메일</th>
+                    <td><input type="email" placeholder="이메일을 입력해주세요."></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">연락처</th>
+                    <td class="pd-quote-phone">
+                      <input type="text" inputmode="numeric" maxlength="4" aria-label="연락처 앞자리">
+                      <span>-</span>
+                      <input type="text" inputmode="numeric" maxlength="4" aria-label="연락처 가운데자리">
+                      <span>-</span>
+                      <input type="text" inputmode="numeric" maxlength="4" aria-label="연락처 뒷자리">
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">견적일자</th>
+                    <td><span id="quoteEstimateDate">2026년 03월 22일</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section class="pd-quote-sheet__company" aria-label="공급사 정보">
+              <table class="pd-quote-company-table">
+                <tbody>
+                  <tr>
+                    <th scope="row">상호</th>
+                    <td>(주)구디비투비</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">대표자명</th>
+                    <td>최지윤</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">업태</th>
+                    <td>서비스업</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">종목</th>
+                    <td>소프트웨어 개발 및 통신판매업</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">소재지</th>
+                    <td>서울 금천구 가산디지털2로 95 (08505)</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+          </div>
+
+          <div class="pd-quote-sheet__request-form">
+            <label for="quoteRequestNote">요구사항</label>
+            <textarea id="quoteRequestNote" placeholder="요구사항을 입력해 주세요."></textarea>
+          </div>
+
+          <div class="pd-quote-sheet__reserve">
+            <p>
+              정확한 가격견적을 위해 사용 예정일을 선택해 주세요. <strong>(필수)</strong>
+              <small class="pd-quote-sheet__reserve-note">견적 열람기간은 발행일로부터 7일입니다.</small>
+            </p>
+            <input type="date" id="quoteUseDate" aria-label="사용 예정일 선택">
+          </div>
+
+          <div class="pd-quote-sheet__amount">
+            <span>최종 견적금액</span>
+            <strong>₩ 197,230</strong>
+            <em>(금 십구만 칠천이백삼십 원)</em>
+          </div>
+
+          <table class="pd-quote-sheet__table" aria-label="견적 상세 품목">
+            <thead>
+              <tr>
+                <th scope="col">품명</th>
+                <th scope="col">수량</th>
+                <th scope="col">단가</th>
+                <th scope="col">공급가액</th>
+                <th scope="col">부가세</th>
+                <th scope="col">합계금액(부가세포함)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>고밀도 r-pet 리유저블 가방 (대)510x460x150mm</td>
+                <td>100개</td>
+                <td>1,793원</td>
+                <td>179,300원</td>
+                <td>17,930원</td>
+                <td>197,230원</td>
+              </tr>
+              <tr class="pd-quote-sheet__sum">
+                <td>합계</td>
+                <td></td>
+                <td></td>
+                <td>179,300원</td>
+                <td>17,930원</td>
+                <td>197,230원</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <section class="pd-quote-sheet__notice">
+            <strong>Goodee B2B 표준 구매안내</strong>
+            <ul>
+              <li>본 견적은 2% 할인율이 반영된 견적입니다.</li>
+              <li>견적서 세부 사항에 대한 문의는 상담팀 담당자 연락처로 문의 바랍니다.</li>
+              <li>기본 혜택 내용 외에 귀사 요청으로 일부 또는 전부를 조정할 경우, 추가 비용이 발생할 수 있습니다.</li>
+            </ul>
+          </section>
+
+          <div class="pd-quote-sheet__actions">
+            <button type="button" class="pd-quote-action-btn">이메일 발송</button>
+            <button type="button" class="pd-quote-action-btn">PDF다운로드</button>
+            <button type="button" class="pd-quote-action-btn">인쇄</button>
+            <button type="button" class="pd-quote-action-btn pd-quote-action-btn--primary">견적서 접수</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
 <script src="product-detail.js" th:src="@{/js/product-detail.js}"></script>
 </body>
 </html>

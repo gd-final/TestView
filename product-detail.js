@@ -590,6 +590,7 @@ function bindEvents() {
   bindPrintOption();
   bindWish();
   bindCta();
+  bindQuoteModal();
   bindCarousel();
   bindGallery();
   bindCategoryDropdown();
@@ -671,9 +672,77 @@ function bindCta() {
   });
 
   // 견적서 작성
-  document.getElementById('quoteWriteBtn')?.addEventListener('click', () => {
-    const productId = document.getElementById('wishBtn')?.dataset.id || '';
-    window.location.href = `/quote?productId=${productId}&qty=${state.qty}&print=${state.printOption}`;
+  document.getElementById('quoteWriteBtn')?.addEventListener('click', (event) => {
+    event.preventDefault();
+    openQuoteModal();
+  });
+}
+
+function openQuoteModal() {
+  const modal = document.getElementById('quoteModal');
+  if (!modal) return;
+  modal.classList.add('is-open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+
+function closeQuoteModal() {
+  const modal = document.getElementById('quoteModal');
+  if (!modal) return;
+  modal.classList.remove('is-open');
+  modal.setAttribute('aria-hidden', 'true');
+}
+
+function bindQuoteModal() {
+  const modal = document.getElementById('quoteModal');
+  if (!modal) return;
+
+  const closeBtn = document.getElementById('quoteModalCloseBtn');
+  const dialog = modal.querySelector('.pd-quote-modal__dialog');
+  const dateEl = document.getElementById('quoteEstimateDate');
+  const useDateInput = document.getElementById('quoteUseDate');
+
+  if (dateEl) {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    dateEl.textContent = `${year}년 ${month}월 ${day}일`;
+  }
+
+  if (useDateInput) {
+    const now = new Date();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const todayValue = `${now.getFullYear()}-${month}-${day}`;
+    useDateInput.min = todayValue;
+    if (!useDateInput.value) useDateInput.value = todayValue;
+
+    useDateInput.addEventListener('focus', () => {
+      if (typeof useDateInput.showPicker === 'function') {
+        useDateInput.showPicker();
+      }
+    });
+  }
+
+  closeBtn?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeQuoteModal();
+  });
+
+  dialog?.addEventListener('click', (event) => {
+    event.stopPropagation();
+  });
+
+  modal.addEventListener('click', (event) => {
+    if (event.target.classList.contains('pd-quote-modal__backdrop')) {
+      closeQuoteModal();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+      closeQuoteModal();
+    }
   });
 }
 
