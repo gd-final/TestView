@@ -1,0 +1,362 @@
+/* root-account.css — 자식 계정 관리 전용 스타일 */
+
+/* ── 루트 계정 정보 카드 ── */
+.ra-root-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.ra-root-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #1c3d5a, #0070c0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.ra-root-avatar i { font-size: 24px; color: #fff; }
+.ra-root-body { flex: 1; min-width: 0; }
+.ra-root-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--p-ink);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.ra-root-email { font-size: 13px; color: var(--p-sub); margin-bottom: 4px; }
+.ra-root-meta  { font-size: 12px; color: var(--p-muted); }
+.ra-root-slot-info { text-align: right; min-width: 140px; }
+.ra-slot-gauge {
+  height: 6px;
+  background: var(--p-surface);
+  border-radius: var(--pill);
+  overflow: hidden;
+  margin-bottom: 6px;
+}
+.ra-slot-gauge__bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--p-blue), #00c6ff);
+  border-radius: var(--pill);
+  transition: width .4s ease;
+}
+.ra-slot-text { font-size: 13px; color: var(--p-sub); }
+.ra-slot-text strong { color: var(--p-blue); font-weight: 700; }
+
+/* ── 슬롯 그리드 ── */
+.ra-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 0;
+}
+
+/* 채워진 슬롯 카드 */
+.ra-slot-card {
+  background: var(--p-white);
+  border: 1px solid var(--p-border);
+  border-radius: var(--r10);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-shadow: var(--s-xs);
+  transition: box-shadow .15s;
+  position: relative;
+}
+.ra-slot-card:hover { box-shadow: var(--s-sm); }
+.ra-slot-card__num {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--p-muted);
+}
+.ra-slot-card--suspended { border-color: #fcc; background: #fff8f8; }
+.ra-slot-card--suspended .ra-slot-card__num { color: #c62828; }
+
+/* 빈 슬롯 카드 */
+.ra-slot-card--empty {
+  border: 2px dashed var(--p-border);
+  background: var(--p-bg);
+  box-shadow: none;
+  align-items: center;
+  justify-content: center;
+  min-height: 190px;
+  cursor: pointer;
+  transition: border-color .15s, background .15s;
+}
+.ra-slot-card:not(.ra-slot-card--empty) { cursor: pointer; }
+.ra-slot-card:not(.ra-slot-card--empty):hover { border-color: var(--p-blue); box-shadow: 0 4px 16px rgba(66,133,244,.15); }
+.ra-card-detail-hint { margin-left: auto; color: var(--p-muted); font-size: 12px; opacity: 0; transition: opacity .15s; }
+.ra-slot-card:hover .ra-card-detail-hint { opacity: 1; }
+
+.ra-slot-card--empty:hover { border-color: var(--p-blue); background: #f0f7ff; }
+.ra-slot-empty-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: var(--p-muted);
+}
+.ra-slot-empty-inner i { font-size: 28px; color: var(--p-border-h); }
+.ra-slot-empty-inner span { font-size: 14px; font-weight: 600; }
+.ra-slot-empty-inner small { font-size: 12px; color: var(--p-muted); }
+.ra-slot-card--empty:hover .ra-slot-empty-inner i,
+.ra-slot-card--empty:hover .ra-slot-empty-inner span { color: var(--p-blue); }
+
+/* 카드 상단 */
+.ra-card-top { display: flex; align-items: center; gap: 12px; }
+.ra-card-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+}
+.ra-card-avatar--seller { background: linear-gradient(135deg, #00875a, #00b87a); }
+.ra-card-avatar--buyer  { background: linear-gradient(135deg, #0070c0, #38b0ff); }
+.ra-card-avatar--admin  { background: linear-gradient(135deg, #6d28d9, #a855f7); }
+.ra-card-info { flex: 1; min-width: 0; }
+.ra-card-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--p-ink);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ra-card-email { font-size: 12px; color: var(--p-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 상태 */
+.ra-card-status { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ra-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.ra-status-dot--active    { background: #2e7d32; }
+.ra-status-dot--suspended { background: #c62828; }
+.ra-status-text { font-size: 12px; color: var(--p-sub); }
+
+/* 권한 태그 */
+.ra-card-perms { display: flex; flex-wrap: wrap; gap: 4px; }
+.ra-perm-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: var(--pill);
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--p-surface);
+  color: var(--p-sub);
+}
+.ra-perm-tag i { font-size: 9px; }
+.ra-perm-tag--on { background: #e3f0fc; color: var(--p-blue); }
+
+/* 카드 메타 */
+.ra-card-meta {
+  font-size: 11px;
+  color: var(--p-muted);
+  border-top: 1px solid var(--p-surface);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* 카드 액션 */
+.ra-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.ra-card-actions button {
+  flex: 1;
+  min-width: 56px;
+  font-size: 12px;
+  padding: 5px 8px;
+  text-align: center;
+}
+
+/* ── 역할 선택 카드 ── */
+.ra-role-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.ra-role-card { position: relative; cursor: pointer; }
+.ra-role-card input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+.ra-role-card__inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 16px 12px;
+  border: 2px solid var(--p-border);
+  border-radius: var(--r7);
+  text-align: center;
+  transition: border-color .15s, background .15s;
+}
+.ra-role-card__inner i { font-size: 22px; color: var(--p-muted); transition: color .15s; }
+.ra-role-card__inner strong { font-size: 14px; color: var(--p-text); display: block; }
+.ra-role-card__inner small { font-size: 11px; color: var(--p-muted); display: block; line-height: 1.4; }
+.ra-role-card input:checked + .ra-role-card__inner { border-color: var(--p-blue); background: #e8f3fc; }
+.ra-role-card input:checked + .ra-role-card__inner i { color: var(--p-blue); }
+.ra-role-card:hover .ra-role-card__inner { border-color: var(--p-blue-dk); }
+
+/* ── 세부 권한 체크 그리드 ── */
+.ra-perm-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 14px;
+  background: var(--p-surface);
+  border-radius: var(--r7);
+}
+.ra-perm-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--p-text);
+  cursor: pointer;
+  user-select: none;
+}
+.ra-perm-check input { accent-color: var(--p-blue); width: 14px; height: 14px; }
+.ra-perm-section-title {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--p-muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-top: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--p-border);
+}
+.ra-perm-section-title:first-child { margin-top: 0; }
+
+/* ── 편집 대상 정보 ── */
+.ra-edit-target {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--p-surface);
+  border-radius: var(--r7);
+}
+.ra-edit-target-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+.ra-edit-target-name  { font-size: 15px; font-weight: 700; color: var(--p-ink); }
+.ra-edit-target-email { font-size: 12px; color: var(--p-sub); }
+
+/* ── 삭제 확인 ── */
+.ra-delete-confirm { text-align: center; padding: 12px 0; }
+.ra-delete-icon { font-size: 40px; color: #c62828; margin-bottom: 12px; display: block; }
+.ra-delete-warn { font-size: 12px; color: var(--p-muted); margin-top: 6px; }
+
+/* ── 기타 유틸 ── */
+.ra-slot-remain {
+  font-size: 13px;
+  color: var(--p-sub);
+  background: var(--p-surface);
+  padding: 8px 14px;
+  border-radius: var(--r5);
+  margin-bottom: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ra-slot-remain strong { color: var(--p-blue); font-weight: 700; }
+.ra-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.ra-log-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.ra-modal-target-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--p-ink);
+  padding: 10px 14px;
+  background: var(--p-surface);
+  border-radius: var(--r5);
+  margin-bottom: 4px;
+}
+
+/* ── 판매자 승인 상태 배지 ── */
+.ra-seller-approval {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--pill);
+  font-size: 12px;
+  font-weight: 700;
+}
+.ra-seller-approval--approved { background: #e8f5e9; color: #2e7d32; }
+.ra-seller-approval--pending  { background: #fff3e0; color: #e65100; }
+.ra-seller-approval--rejected { background: #fdecea; color: #c62828; }
+.ra-seller-approval--none     { background: var(--p-surface); color: var(--p-muted); }
+
+/* ── 판매자 등록 현황 KPI ── */
+.ra-seller-kpi {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.ra-seller-kpi-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: var(--r7);
+  border-left: 4px solid transparent;
+}
+.ra-seller-kpi-card i { font-size: 20px; }
+.ra-seller-kpi-label { font-size: 12px; color: var(--p-sub); margin-bottom: 2px; }
+.ra-seller-kpi-value { font-size: 20px; font-weight: 800; color: var(--p-ink); }
+.ra-seller-kpi-card--green  { background: #f1f9f2; border-color: #2e7d32; }
+.ra-seller-kpi-card--green i  { color: #2e7d32; }
+.ra-seller-kpi-card--orange { background: #fff8f0; border-color: #e65100; }
+.ra-seller-kpi-card--orange i { color: #e65100; }
+.ra-seller-kpi-card--red    { background: #fff5f5; border-color: #c62828; }
+.ra-seller-kpi-card--red i    { color: #c62828; }
+.ra-seller-kpi-card--gray   { background: var(--p-surface); border-color: #9e9e9e; }
+.ra-seller-kpi-card--gray i   { color: #9e9e9e; }
+
+/* ── 판매자 미등록 빈 상태 ── */
+.ra-seller-empty {
+  text-align: center;
+  padding: 32px;
+  color: var(--p-muted);
+}
+.ra-seller-empty i { font-size: 32px; margin-bottom: 10px; display: block; }
+.ra-seller-empty p { font-size: 14px; }
+
+@media (max-width: 900px) { .ra-seller-kpi { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 500px) { .ra-seller-kpi { grid-template-columns: 1fr 1fr; } }
+
+/* ── 반응형 ── */
+@media (max-width: 900px) {
+  .ra-slot-grid { grid-template-columns: 1fr 1fr; }
+  .ra-role-selector { grid-template-columns: 1fr; }
+  .ra-form-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .ra-slot-grid { grid-template-columns: 1fr; }
+  .ra-perm-grid { grid-template-columns: 1fr 1fr; }
+}

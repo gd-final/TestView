@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>자식 계정 관리 — Goodee 루트</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <link rel="stylesheet" href="admin-common.css"/>
+  <link rel="stylesheet" href="root-account.css"/>
+</head>
+<body>
+
+<header class="gh">
+  <div class="gh__wrap">
+    <a href="/" class="gh__logo">Goodee <span>B2B</span></a>
+    <div class="gh__search">
+      <div class="gh__search-box">
+        <input type="text" class="gh__search-input" placeholder="검색"/>
+        <button class="gh__search-btn"><i class="fas fa-search"></i></button>
+      </div>
+    </div>
+    <nav class="gh__util">
+      <a href="#"><i class="fas fa-bell"></i></a>
+      <a href="#" class="gh__util-user"><i class="fas fa-user-shield"></i> 루트 관리자</a>
+    </nav>
+  </div>
+</header>
+
+<div class="cat-strip">
+  <div class="cat-strip__inner">
+    <button class="cat-all__btn" aria-expanded="false"><i class="fas fa-bars"></i> 전체 카테고리</button>
+    <div class="cat-panel" id="v3CatPanel" aria-hidden="true"></div>
+  </div>
+</div>
+
+<main class="mypage-layout">
+  <aside class="mypage-nav">
+    <div class="nav-group is-open" id="navGroup1">
+      <button type="button" class="nav-group__toggle" aria-expanded="true" aria-controls="navGroup1Body">
+        <span class="nav-group__icon"><i class="fas fa-shield-alt"></i></span>
+        <span class="nav-group__label">보안 설정</span>
+        <i class="fas fa-chevron-down nav-group__arrow"></i>
+      </button>
+      <ul class="nav-group__body" id="navGroup1Body">
+        <li><a href="root-account.html" class="nav-group__item is-active">자식 계정 관리</a></li>
+        <li><a href="root-security.html" class="nav-group__item">IP 화이트리스트</a></li>
+      </ul>
+    </div>
+    <div class="nav-group" id="navGroup2">
+      <button type="button" class="nav-group__toggle" aria-expanded="false" aria-controls="navGroup2Body">
+        <span class="nav-group__icon"><i class="fas fa-tachometer-alt"></i></span>
+        <span class="nav-group__label">관리자</span>
+        <i class="fas fa-chevron-down nav-group__arrow"></i>
+      </button>
+      <ul class="nav-group__body" id="navGroup2Body">
+        <li><a href="admin-dashboard.html" class="nav-group__item">대시보드</a></li>
+        <li><a href="admin-member-list.html" class="nav-group__item">회원 관리</a></li>
+      </ul>
+    </div>
+  </aside>
+
+  <section class="mypage-content">
+
+    <!-- 페이지 헤더 -->
+    <div class="page-hd">
+      <div>
+        <h2 class="page-hd__title">자식 계정 관리</h2>
+        <p class="page-hd__sub">루트 계정에서 최대 5개의 자식 계정을 생성하고 역할을 부여할 수 있습니다.</p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <a href="seller-register.html" class="btn-ghost"><i class="fas fa-store"></i> 판매자 등록하기</a>
+        <button class="btn-primary" id="openCreateBtn" onclick="openCreateModal()">
+          <i class="fas fa-plus"></i> 계정 추가
+        </button>
+      </div>
+    </div>
+
+    <!-- 루트 계정 정보 -->
+    <div class="panel ra-root-info">
+      <div class="ra-root-avatar"><i class="fas fa-user-shield"></i></div>
+      <div class="ra-root-body">
+        <p class="ra-root-name">루트 관리자 <span class="badge badge--purple">ROOT</span></p>
+        <p class="ra-root-email">root@goodee.co.kr</p>
+        <p class="ra-root-meta">마지막 접속: 2025-03-21 09:44 · IP: 203.0.113.5</p>
+      </div>
+      <div class="ra-root-slot-info">
+        <div class="ra-slot-gauge">
+          <div class="ra-slot-gauge__bar" id="slotGaugeBar" style="width:60%"></div>
+        </div>
+        <p class="ra-slot-text">자식 계정 <strong id="slotUsed">3</strong> / 5 사용 중</p>
+      </div>
+    </div>
+
+    <!-- 경고 배너 -->
+    <div class="alert-banner alert-banner--warn">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span>자식 계정에 부여한 역할과 권한은 즉시 적용됩니다. 최소 권한 원칙에 따라 필요한 권한만 부여하세요.</span>
+    </div>
+
+    <!-- 슬롯 그리드 -->
+    <div class="ra-slot-grid" id="slotGrid">
+      <!-- JS 렌더 -->
+    </div>
+
+    <!-- 판매자 등록 현황 -->
+    <div class="panel" style="margin-top:16px;">
+      <div class="ra-log-hd">
+        <h3 class="panel__title"><i class="fas fa-store" style="color:var(--p-blue);margin-right:6px;"></i>판매자 등록 현황</h3>
+        <a href="seller-register.html" class="btn-primary btn-sm"><i class="fas fa-plus"></i> 판매자 등록하기</a>
+      </div>
+      <div id="sellerStatusPanel"><!-- JS 렌더 --></div>
+    </div>
+
+    <!-- 이력 섹션 -->
+    <div class="panel" style="margin-top:16px;">
+      <div class="ra-log-hd">
+        <h3 class="panel__title">계정 관리 이력</h3>
+        <button class="btn-ghost btn-sm" onclick="openModal('modalLog')"><i class="fas fa-list"></i> 전체 보기</button>
+      </div>
+      <table class="data-table" id="logTable">
+        <thead>
+          <tr><th>일시</th><th>작업</th><th>대상 계정</th><th>변경 내용</th><th>처리자</th></tr>
+        </thead>
+        <tbody id="logTbody"></tbody>
+      </table>
+    </div>
+
+  </section>
+</main>
+
+<!-- ── 계정 생성 모달 ── -->
+<div class="modal-overlay" id="modalCreate">
+  <div class="modal modal--lg">
+    <div class="modal__hd">
+      <h3 class="modal__title">자식 계정 생성</h3>
+      <button class="modal__close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="ra-slot-remain">
+        남은 슬롯: <strong id="remainSlotCount">2</strong>개
+      </div>
+
+      <div class="ra-form-grid">
+        <div class="field">
+          <label class="field__label">이름 <span class="required">*</span></label>
+          <input type="text" class="field__input" id="newName" placeholder="홍길동" style="width:100%;"/>
+        </div>
+        <div class="field">
+          <label class="field__label">이메일 <span class="required">*</span></label>
+          <input type="email" class="field__input" id="newEmail" placeholder="user@goodee.co.kr" style="width:100%;"/>
+        </div>
+        <div class="field">
+          <label class="field__label">임시 비밀번호 <span class="required">*</span></label>
+          <input type="password" class="field__input" id="newPw" placeholder="8자 이상" style="width:100%;"/>
+        </div>
+        <div class="field">
+          <label class="field__label">연락처</label>
+          <input type="text" class="field__input" id="newPhone" placeholder="010-0000-0000" style="width:100%;"/>
+        </div>
+      </div>
+
+      <!-- 역할 선택 -->
+      <div class="field" style="margin-top:16px;">
+        <label class="field__label">역할 부여 <span class="required">*</span></label>
+        <div class="ra-role-selector" id="createRoleSelector">
+          <label class="ra-role-card" data-role="seller">
+            <input type="radio" name="newRole" value="seller"/>
+            <div class="ra-role-card__inner">
+              <i class="fas fa-store"></i>
+              <strong>판매자</strong>
+              <small>상품 등록·주문 관리·정산 조회</small>
+            </div>
+          </label>
+          <label class="ra-role-card" data-role="buyer">
+            <input type="radio" name="newRole" value="buyer"/>
+            <div class="ra-role-card__inner">
+              <i class="fas fa-shopping-cart"></i>
+              <strong>구매자</strong>
+              <small>상품 조회·주문·배송 조회</small>
+            </div>
+          </label>
+          <label class="ra-role-card" data-role="admin">
+            <input type="radio" name="newRole" value="admin"/>
+            <div class="ra-role-card__inner">
+              <i class="fas fa-user-cog"></i>
+              <strong>관리자</strong>
+              <small>회원·상품·주문 전체 관리</small>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- 세부 권한 -->
+      <div class="field" style="margin-top:16px;">
+        <label class="field__label">세부 권한 <small style="font-weight:400;color:var(--p-muted);">역할 기본값에서 조정</small></label>
+        <div class="ra-perm-grid" id="createPermGrid">
+          <!-- JS 렌더 -->
+        </div>
+      </div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn-ghost" data-modal-close>취소</button>
+      <button class="btn-primary" id="createSubmitBtn">계정 생성</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 역할·권한 편집 모달 ── -->
+<div class="modal-overlay" id="modalEdit">
+  <div class="modal modal--lg">
+    <div class="modal__hd">
+      <h3 class="modal__title">역할·권한 편집</h3>
+      <button class="modal__close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="ra-edit-target" id="editTargetInfo"></div>
+
+      <div class="field" style="margin-top:16px;">
+        <label class="field__label">역할 변경</label>
+        <div class="ra-role-selector" id="editRoleSelector">
+          <label class="ra-role-card" data-role="seller">
+            <input type="radio" name="editRole" value="seller"/>
+            <div class="ra-role-card__inner"><i class="fas fa-store"></i><strong>판매자</strong><small>상품 등록·주문 관리·정산 조회</small></div>
+          </label>
+          <label class="ra-role-card" data-role="buyer">
+            <input type="radio" name="editRole" value="buyer"/>
+            <div class="ra-role-card__inner"><i class="fas fa-shopping-cart"></i><strong>구매자</strong><small>상품 조회·주문·배송 조회</small></div>
+          </label>
+          <label class="ra-role-card" data-role="admin">
+            <input type="radio" name="editRole" value="admin"/>
+            <div class="ra-role-card__inner"><i class="fas fa-user-cog"></i><strong>관리자</strong><small>회원·상품·주문 전체 관리</small></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <label class="field__label">세부 권한</label>
+        <div class="ra-perm-grid" id="editPermGrid"></div>
+      </div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn-ghost" data-modal-close>취소</button>
+      <button class="btn-primary" id="editSaveBtn">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 정지 모달 ── -->
+<div class="modal-overlay" id="modalSuspend">
+  <div class="modal">
+    <div class="modal__hd">
+      <h3 class="modal__title">계정 정지</h3>
+      <button class="modal__close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <p class="ra-modal-target-name" id="suspendTargetName"></p>
+      <div class="field" style="margin-top:12px;">
+        <label class="field__label">정지 사유 <span class="required">*</span></label>
+        <select class="field__select" id="suspendReason" style="width:100%;">
+          <option value="">사유 선택</option>
+          <option>보안 위협</option>
+          <option>정책 위반</option>
+          <option>장기 미사용</option>
+          <option>기타</option>
+        </select>
+      </div>
+      <div class="field" style="margin-top:10px;">
+        <label class="field__label">상세 내용</label>
+        <textarea class="field__textarea" id="suspendDetail" rows="3" placeholder="상세 내용을 입력하세요."></textarea>
+      </div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn-ghost" data-modal-close>취소</button>
+      <button class="btn-danger" id="confirmSuspendBtn">정지 처리</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 삭제 확인 모달 ── -->
+<div class="modal-overlay" id="modalDelete">
+  <div class="modal">
+    <div class="modal__hd">
+      <h3 class="modal__title">계정 삭제</h3>
+      <button class="modal__close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <div class="ra-delete-confirm">
+        <i class="fas fa-exclamation-circle ra-delete-icon"></i>
+        <p><strong id="deleteTargetName"></strong> 계정을 삭제하시겠습니까?</p>
+        <p class="ra-delete-warn">삭제된 계정은 복구할 수 없으며 해당 슬롯이 반환됩니다.</p>
+      </div>
+      <div class="field" style="margin-top:16px;">
+        <label class="field__label">확인을 위해 계정명을 입력하세요 <span class="required">*</span></label>
+        <input type="text" class="field__input" id="deleteConfirmInput" style="width:100%;" placeholder="계정명 입력"/>
+      </div>
+    </div>
+    <div class="modal__ft">
+      <button class="btn-ghost" data-modal-close>취소</button>
+      <button class="btn-danger" id="confirmDeleteBtn">삭제 확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 전체 이력 모달 ── -->
+<div class="modal-overlay" id="modalLog">
+  <div class="modal modal--lg">
+    <div class="modal__hd">
+      <h3 class="modal__title">전체 관리 이력</h3>
+      <button class="modal__close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal__body">
+      <table class="data-table">
+        <thead><tr><th>일시</th><th>작업</th><th>대상 계정</th><th>변경 내용</th><th>처리자</th></tr></thead>
+        <tbody id="logAllTbody"></tbody>
+      </table>
+    </div>
+    <div class="modal__ft">
+      <button class="btn-ghost" data-modal-close>닫기</button>
+    </div>
+  </div>
+</div>
+
+<aside class="quick-side">
+  <button class="quick-side__btn" id="quickTopBtn"><i class="fas fa-arrow-up"></i></button>
+</aside>
+<footer class="gf"><div class="gf__inner"><p class="gf__copy">&copy; 2025 Goodee B2B. All rights reserved.</p></div></footer>
+
+<script src="admin-common.js"></script>
+<script src="root-account.js"></script>
+</body>
+</html>
